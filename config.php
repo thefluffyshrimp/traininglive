@@ -25,6 +25,8 @@ $CFG->admin     = 'admin';
 
 $CFG->directorypermissions = 0777;
 
+$CFG->defaultblocks_topics =  'rate_course,comments,qrcode';
+
 require_once(__DIR__ . '/lib/setup.php');
 
 // There is no php closing tag in this file,
