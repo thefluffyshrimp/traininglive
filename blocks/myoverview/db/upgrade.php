@@ -16,7 +16,8 @@
 
 /**
  * This file keeps track of upgrades to the myoverview block
- * @since 3.6.7
+ *
+ * @since 3.7.3
  * @package block_myoverview
  * @copyright 2019 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_block_myoverview_upgrade($oldversion) {
     global $DB;
 
-    if ($oldversion < 2018120301) {
+    if ($oldversion < 2019052001) {
         // Remove orphaned course favourites, which weren't being deleted when the course was deleted.
         $sql = 'SELECT f.id
                   FROM {favourite} f
@@ -51,7 +52,7 @@ function xmldb_block_myoverview_upgrade($oldversion) {
             }
         }
 
-        upgrade_block_savepoint(true, 2018120301, 'myoverview', false);
+        upgrade_block_savepoint(true, 2019052001, 'myoverview', false);
     }
 
     return true;

@@ -53,7 +53,11 @@ class restore_controller extends base_controller {
     /** @var restore_plan */
     protected $plan;   // Restore execution plan
 
-    protected $execution;     // inmediate/delayed
+    /**
+     * Immediate/delayed execution type.
+     * @var integer
+     */
+    protected $execution;
     protected $executiontime; // epoch time when we want the restore to be executed (requires cron to run)
 
     protected $checksum; // Cache @checksumable results for lighter @is_checksum_correct() uses
@@ -88,7 +92,6 @@ class restore_controller extends base_controller {
         // Apply some defaults
         $this->type = '';
         $this->format = backup::FORMAT_UNKNOWN;
-        $this->execution = backup::EXECUTION_INMEDIATE;
         $this->operation = backup::OPERATION_RESTORE;
         $this->executiontime = 0;
         $this->samesite = false;
@@ -110,6 +113,13 @@ class restore_controller extends base_controller {
         // Default logger chain (based on interactive/execution)
         $this->logger = backup_factory::get_logger_chain($this->interactive, $this->execution, $this->restoreid);
 
+        // Set execution based on backup mode.
+        if ($mode == backup::MODE_ASYNC) {
+            $this->execution = backup::EXECUTION_DELAYED;
+        } else {
+            $this->execution = backup::EXECUTION_INMEDIATE;
+        }
+
         // By default there is no progress reporter unless you specify one so it
         // can be used during loading of the plan.
         if ($progress) {
@@ -119,7 +129,7 @@ class restore_controller extends base_controller {
         }
         $this->progress->start_progress('Constructing restore_controller');
 
-        // Instantiate the output_controller singleton and active it if interactive and inmediate
+        // Instantiate the output_controller singleton and active it if interactive and immediate.
         $oc = output_controller::get_instance();
         if ($this->interactive == backup::INTERACTIVE_YES && $this->execution == backup::EXECUTION_INMEDIATE) {
             $oc->set_active(true);
@@ -198,7 +208,8 @@ class restore_controller extends base_controller {
         // TODO: Check it's a correct status.
         $this->status = $status;
         // Ensure that, once set to backup::STATUS_AWAITING | STATUS_NEED_PRECHECK, controller is stored in DB.
-        if ($status == backup::STATUS_AWAITING || $status == backup::STATUS_NEED_PRECHECK) {
+        // Also save if executing so we can better track progress.
+        if ($status == backup::STATUS_AWAITING || $status == backup::STATUS_NEED_PRECHECK || $status == backup::STATUS_EXECUTING) {
             $this->save_controller();
             $tbc = self::load_controller($this->restoreid);
             $this->logger = $tbc->logger; // wakeup loggers
@@ -208,14 +219,18 @@ class restore_controller extends base_controller {
             // If the operation has ended without error (backup::STATUS_FINISHED_OK)
             // proceed by cleaning the object from database. MDL-29262.
             $this->save_controller(false, true);
+        } else if ($status == backup::STATUS_FINISHED_ERR) {
+            // If the operation has ended with an error save the controller
+            // preserving the object in the database. We may want it for debugging.
+            $this->save_controller();
         }
     }
 
     public function set_execution($execution, $executiontime = 0) {
         $this->log('setting controller execution', backup::LOG_DEBUG);
-        // TODO: Check valid execution mode
-        // TODO: Check time in future
-        // TODO: Check time = 0 if inmediate
+        // TODO: Check valid execution mode.
+        // TODO: Check time in future.
+        // TODO: Check time = 0 if immediate.
         $this->execution = $execution;
         $this->executiontime = $executiontime;
 
@@ -317,6 +332,21 @@ class restore_controller extends base_controller {
     public function get_plan() {
         return $this->plan;
     }
+    /**
+     * Gets the value for the requested setting
+     *
+     * @param string $name
+     * @param bool $default
+     * @return mixed
+     */
+    public function get_setting_value($name, $default = false) {
+        try {
+            return $this->get_plan()->get_setting($name)->get_value();
+        } catch (Exception $e) {
+            debugging('Failed to find the setting: '.$name, DEBUG_DEVELOPER);
+            return $default;
+        }
+    }
 
     public function get_info() {
         return $this->info;
@@ -326,6 +356,14 @@ class restore_controller extends base_controller {
         // Basic/initial prevention against time/memory limits
         core_php_time_limit::raise(1 * 60 * 60); // 1 hour for 1 course initially granted
         raise_memory_limit(MEMORY_EXTRA);
+
+        // Do course cleanup precheck, if required. This was originally in restore_ui. Moved to handle async backup/restore.
+        if ($this->get_target() == backup::TARGET_CURRENT_DELETING || $this->get_target() == backup::TARGET_EXISTING_DELETING) {
+            $options = array();
+            $options['keep_roles_and_enrolments'] = $this->get_setting_value('keep_roles_and_enrolments');
+            $options['keep_groups_and_groupings'] = $this->get_setting_value('keep_groups_and_groupings');
+            restore_dbops::delete_course_content($this->get_courseid(), $options);
+        }
         // If this is not a course restore or single activity restore (e.g. duplicate), inform the plan we are not
         // including all the activities for sure. This will affect any
         // task/step executed conditionally to stop processing information

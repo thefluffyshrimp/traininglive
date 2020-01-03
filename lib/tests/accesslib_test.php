@@ -729,7 +729,7 @@ class core_accesslib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         $allroles = get_all_roles();
-        $this->assertInternalType('array', $allroles);
+        $this->assertIsArray($allroles);
         $initialrolescount = count($allroles);
         $this->assertTrue($initialrolescount >= 8); // There are 8 roles is standard install.
         $rolenames = array_column($allroles, 'shortname');
@@ -757,7 +757,7 @@ class core_accesslib_testcase extends advanced_testcase {
         $renames = $DB->get_records_menu('role_names', array('contextid'=>$coursecontext->id), '', 'roleid, name');
 
         $allroles = get_all_roles($coursecontext);
-        $this->assertInternalType('array', $allroles);
+        $this->assertIsArray($allroles);
         $this->assertCount($initialrolescount + 1, $allroles);
         $role = reset($allroles);
         $role = (array)$role;

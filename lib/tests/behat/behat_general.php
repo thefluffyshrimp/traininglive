@@ -776,8 +776,8 @@ class behat_general extends behat_base {
         string $preselectortype,
         string $postelement,
         string $postselectortype,
-        $containerelement = null,
-        $containerselectortype = null
+        ?string $containerelement = null,
+        ?string $containerselectortype = null
     ) {
         $msg = "'{$preelement}' '{$preselectortype}' does not appear before '{$postelement}' '{$postselectortype}'";
         $this->check_element_order(
@@ -809,8 +809,8 @@ class behat_general extends behat_base {
         string $postselectortype,
         string $preelement,
         string $preselectortype,
-        $containerelement = null,
-        $containerselectortype = null
+        ?string $containerelement = null,
+        ?string $containerselectortype = null
     ) {
         $msg = "'{$postelement}' '{$postselectortype}' does not appear after '{$preelement}' '{$preselectortype}'";
         $this->check_element_order(
@@ -836,8 +836,8 @@ class behat_general extends behat_base {
      * @param string $msg Message to output if this fails
      */
     protected function check_element_order(
-        $containerelement,
-        $containerselectortype,
+        ?string $containerelement,
+        ?string $containerselectortype,
         string $preelement,
         string $preselectortype,
         string $postelement,
@@ -1497,6 +1497,46 @@ EOF;
             throw new ExpectationException('Downloaded data was ' . $actualsize .
                     ' bytes, expecting between ' . $minexpectedsize . ' and ' .
                     $maxexpectedsize, $this->getSession());
+        }
+    }
+
+    /**
+     * Checks that the image on the page is the same as one of the fixture files
+     *
+     * @Then /^the image at "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" should be identical to "(?P<filepath_string>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $element The locator of the image
+     * @param string $selectortype The selector type
+     * @param string $filepath path to the fixture file
+     */
+    public function the_image_at_should_be_identical_to($element, $selectortype, $filepath) {
+        global $CFG;
+
+        // Get the container node (exception if it doesn't exist).
+        $containernode = $this->get_selected_node($selectortype, $element);
+        $url = $containernode->getAttribute('src');
+        if ($url == null) {
+            throw new ExpectationException('Element does not have src attribute',
+                $this->getSession());
+        }
+        $session = $this->getSession()->getCookie('MoodleSession');
+        $content = download_file_content($url, array('Cookie' => 'MoodleSession=' . $session));
+
+        // Get the content of the fixture file.
+        // Replace 'admin/' if it is in start of path with $CFG->admin .
+        if (substr($filepath, 0, 6) === 'admin/') {
+            $filepath = $CFG->admin . DIRECTORY_SEPARATOR . substr($filepath, 6);
+        }
+        $filepath = str_replace('/', DIRECTORY_SEPARATOR, $filepath);
+        $filepath = $CFG->dirroot . DIRECTORY_SEPARATOR . $filepath;
+        if (!is_readable($filepath)) {
+            throw new ExpectationException('The file to compare to does not exist.', $this->getSession());
+        }
+        $expectedcontent = file_get_contents($filepath);
+
+        if ($content !== $expectedcontent) {
+            throw new ExpectationException('Image is not identical to the fixture. Received ' .
+            strlen($content) . ' bytes and expected ' . strlen($expectedcontent) . ' bytes');
         }
     }
 

@@ -1788,6 +1788,7 @@ class restore_course_structure_step extends restore_structure_step {
         $course = new restore_path_element('course', '/course');
         $category = new restore_path_element('category', '/course/category');
         $tag = new restore_path_element('tag', '/course/tags/tag');
+        $customfield = new restore_path_element('customfield', '/course/customfields/customfield');
         $allowed_module = new restore_path_element('allowed_module', '/course/allowed_modules/module');
 
         // Apply for 'format' plugins optional paths at course level
@@ -1811,7 +1812,7 @@ class restore_course_structure_step extends restore_structure_step {
         // Apply for admin tool plugins optional paths at course level.
         $this->add_plugin_structure('tool', $course);
 
-        return array($course, $category, $tag, $allowed_module);
+        return array($course, $category, $tag, $customfield, $allowed_module);
     }
 
     /**
@@ -1933,6 +1934,16 @@ class restore_course_structure_step extends restore_structure_step {
 
         core_tag_tag::add_item_tag('core', 'course', $this->get_courseid(),
                 context_course::instance($this->get_courseid()), $data->rawname);
+    }
+
+    /**
+     * Process custom fields
+     *
+     * @param array $data
+     */
+    public function process_customfield($data) {
+        $handler = core_course\customfield\course_handler::create();
+        $handler->restore_instance_data_from_backup($this->task, $data);
     }
 
     public function process_allowed_module($data) {
@@ -2586,15 +2597,15 @@ class restore_badges_structure_step extends restore_structure_step {
 
         $data = (object)$data;
 
-        $params = array(
-                'badgeid'           => $this->get_new_parentid('badge'),
-                'issuername'        => $data->issuername,
-                'issuerurl'         => $data->issuerurl,
-                'issueremail'       => $data->issueremail,
-                'claimid'           => $data->claimid,
-                'claimcomment'      => $data->claimcomment,
-                'dateissued'        => $this->apply_date_offset($data->dateissued)
-        );
+        $params = [
+            'badgeid' => $this->get_new_parentid('badge'),
+            'issuername' => $data->issuername,
+            'issuerurl' => $data->issuerurl,
+            'issueremail' => $data->issueremail,
+            'claimid' => $data->claimid,
+            'claimcomment' => $data->claimcomment,
+            'dateissued' => $this->apply_date_offset($data->dateissued)
+        ];
         $newid = $DB->insert_record('badge_endorsement', $params);
         $this->set_mapping('endorsement', $data->id, $newid);
     }
@@ -2639,7 +2650,7 @@ class restore_badges_structure_step extends restore_structure_step {
                 'targetframework'   => $data->targetframework,
                 'targetcode'        => $data->targetcode
         );
-        $newid = $DB->insert_record('badge_competencies', $params);
+        $newid = $DB->insert_record('badge_alignment', $params);
         $this->set_mapping('alignment', $data->id, $newid);
     }
 
@@ -2686,6 +2697,14 @@ class restore_badges_structure_step extends restore_structure_step {
             if (!empty($role)) {
                 $params['name'] = 'role_' . $role;
                 $params['value'] = $role;
+            } else {
+                return;
+            }
+        } else if ($data->criteriatype == BADGE_CRITERIA_TYPE_COMPETENCY) {
+            $competencyid = $this->get_mappingid('competency', $data->value);
+            if (!empty($competencyid)) {
+                $params['name'] = 'competency_' . $competencyid;
+                $params['value'] = $competencyid;
             } else {
                 return;
             }
@@ -5375,7 +5394,7 @@ abstract class restore_questions_activity_structure_step extends restore_activit
     }
 
     /**
-     * This method does the acutal work for process_question_usage or
+     * This method does the actual work for process_question_usage or
      * process_{nameprefix}_question_usage.
      * @param array $data the data from the XML file.
      * @param string $nameprefix the element name prefix.
@@ -5410,7 +5429,7 @@ abstract class restore_questions_activity_structure_step extends restore_activit
     abstract protected function inform_new_usage_id($newusageid);
 
     /**
-     * This method does the acutal work for process_question_attempt or
+     * This method does the actual work for process_question_attempt or
      * process_{nameprefix}_question_attempt.
      * @param array $data the data from the XML file.
      * @param string $nameprefix the element name prefix.
@@ -5440,7 +5459,7 @@ abstract class restore_questions_activity_structure_step extends restore_activit
     }
 
     /**
-     * This method does the acutal work for process_question_attempt_step or
+     * This method does the actual work for process_question_attempt_step or
      * process_{nameprefix}_question_attempt_step.
      * @param array $data the data from the XML file.
      * @param string $nameprefix the element name prefix.

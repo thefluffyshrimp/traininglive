@@ -68,7 +68,11 @@ if ($courseid) {
 } else {
     $course = null;
     $courseid = null;
-    $category = core_course_category::get_default();
+    $topchildren = core_course_category::top()->get_children();
+    if (empty($topchildren)) {
+        throw new moodle_exception('cannotviewcategory', 'error');
+    }
+    $category = reset($topchildren);
     $categoryid = $category->id;
     $context = context_coursecat::instance($category->id);
     $url->param('categoryid', $category->id);
@@ -378,9 +382,9 @@ if ($action !== false && confirm_sesskey()) {
                     }
                     $categories = core_course_category::get_many($categoryids);
                 } else if ($for === 'allcategories') {
-                    if ($sortcategoriesby && core_course_category::get(0)->can_resort_subcategories()) {
+                    if ($sortcategoriesby && core_course_category::top()->can_resort_subcategories()) {
                         \core_course\management\helper::action_category_resort_subcategories(
-                            core_course_category::get(0), $sortcategoriesby);
+                            core_course_category::top(), $sortcategoriesby);
                     }
                     $categorieslist = core_course_category::make_categories_list('moodle/category:manage');
                     $categoryids = array_keys($categorieslist);

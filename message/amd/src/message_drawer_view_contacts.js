@@ -125,8 +125,8 @@ function(
     var registerEventListeners = function(body) {
         var contactsSection = getContactsSectionContainer(body);
         var requestsSection = getRequestsSectionContainer(body);
-        var showContactsAction = body.find(SELECTORS.ACTION_SHOW_CONTACTS_SECTION);
-        var showRequestsAction = body.find(SELECTORS.ACTION_SHOW_REQUESTS_SECTION);
+        var showContactsAction = getShowContactsAction(body);
+        var showRequestsAction = getShowRequestsAction(body);
 
         showContactsAction.on('show.bs.tab', function() {
             ContactsSection.show(contactsSection);
@@ -143,12 +143,14 @@ function(
     /**
      * Setup the contact page.
      *
+     * @param {string} namespace The route namespace.
      * @param {Object} header Contacts header container element.
      * @param {Object} body Contacts body container element.
+     * @param {Object} footer Contacts footer container element.
      * @param {String|null} tab Tab to show, either 'requests' or 'contacts', if any.
      * @return {Object} jQuery promise
      */
-    var show = function(header, body, tab) {
+    var show = function(namespace, header, body, footer, tab) {
         body = $(body);
 
         if (!body.attr('data-contacts-init')) {

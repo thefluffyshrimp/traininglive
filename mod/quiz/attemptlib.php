@@ -2173,7 +2173,8 @@ class quiz_attempt {
                 // First question on page, go to top.
                 $fragment = '#';
             } else {
-                $fragment = '#q' . $slot;
+                $qa = $this->get_question_attempt($slot);
+                $fragment = '#' . $qa->get_outer_question_div_unique_id();
             }
         }
 

@@ -197,11 +197,6 @@
     padding-right: 10px;
 }
 
-#page-mod-forum-discuss .discussioncontrol.movediscussion {
-    padding-right: 10px;
-}
-margin-bottom: 10px;
-
 /** Styles for view.php **/
 #page-mod-forum-view .forumaddnew {
     margin-bottom: 20px;
@@ -219,6 +214,12 @@ margin-bottom: 10px;
     text-align: right;
     white-space: nowrap;
     margin: 5px 0;
+}
+
+.discussion-list .userpicture,
+.discussion-list .grouppicture {
+    height: 35px;
+    width: 35px;
 }
 
 /** Styles for search.php */
@@ -272,22 +273,7 @@ span.unread {
 .path-mod-forum .discussion-nav ul {
     margin: 0;
     list-style: none;
-}
-
-.path-mod-forum .discussion-nav .prev-discussion:before {
-    /*rtl:raw:
-    content: ' ► ';
-    */
-    /*rtl:remove*/
-    content: ' ◄ ';
-}
-
-.path-mod-forum .discussion-nav .next-discussion:after {
-    /*rtl:raw:
-    content: ' ◄ ';
-    */
-    /*rtl:remove*/
-    content: ' ► ';
+    padding-left: 0;
 }
 
 .path-mod-forum .discussion-nav .next-discussion {
@@ -306,13 +292,18 @@ span.unread {
     background: url([[pix:mod_forum|t/unsubscribed]]) no-repeat -9999px -9999px;
 }
 
+.path-mod-forum .discussionsubscription,
+.path-mod-forum .discussion-settings-menu,
 .path-mod-forum .discussionsubscription {
     margin-top: -10px;
     text-align: right;
     margin-bottom: 10px;
 }
 
-.path-mod-forum .discussionsubscription > a > img {
+.path-mod-forum .discussionsubscription > a > img,
+.path-mod-forum .discussionlock > a > img,
+.path-mod-forum .favourite-discussion > a > img,
+.path-mod-forum .discussion-settings-menu > a > img {
     width: 12px;
     padding: 0 4px;
 }
@@ -332,3 +323,24 @@ span.unread {
 .path-mod-forum article .nav .nav-link + .nav-link {
     border-left: 1px solid #ddd;
 }
+
+.privatereplyinfo {
+    font-size: 80%;
+}
+
+.forum-post-container:focus {
+    outline: 0;
+}
+
+/* This style is copied directly from the Bootstrap reboot file which adds button outline */
+/* stylelint-disable declaration-block-no-duplicate-properties */
+.post-actions .btn:focus {
+    outline: 1px dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+}
+
+.forum-post-container:focus > .focus-target {
+    outline: 1px dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+}
+/* stylelint-enable declaration-block-no-duplicate-properties */

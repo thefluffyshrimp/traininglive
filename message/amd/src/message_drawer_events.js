@@ -35,14 +35,15 @@ define([], function() {
         CONVERSATION_DELETED: 'message-drawer-conversation-deleted',
         CONVERSATION_READ: 'message-drawer-conversation-read',
         CONVERSATION_SET_FAVOURITE: 'message-drawer-conversation-set-favourite',
+        CONVERSATION_SET_MUTED: 'message-drawer-conversation-set-muted',
         CONVERSATION_UNSET_FAVOURITE: 'message-drawer-conversation-unset-favourite',
+        CONVERSATION_UNSET_MUTED: 'message-drawer-conversation-unset-muted',
         PREFERENCES_UPDATED: 'message-drawer-preferences-updated',
         ROUTE_CHANGED: 'message-drawer-route-change',
         SHOW: 'message-drawer-show',
         HIDE: 'message-drawer-hide',
         TOGGLE_VISIBILITY: 'message-drawer-toggle',
         SHOW_CONVERSATION: 'message-drawer-show-conversation',
-        SHOW_CONTACT_REQUESTS: 'message-drawer-show-contact-requests',
         SHOW_SETTINGS: 'message-drawer-show-settings',
     };
 });

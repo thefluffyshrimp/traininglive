@@ -212,7 +212,7 @@ class mod_assign_external extends external_api {
                 'attemptnumber'     => new external_value(PARAM_INT, 'attempt number'),
                 'timecreated'       => new external_value(PARAM_INT, 'grade creation time'),
                 'timemodified'      => new external_value(PARAM_INT, 'grade last modified time'),
-                'grader'            => new external_value(PARAM_INT, 'grader'),
+                'grader'            => new external_value(PARAM_INT, 'grader, -1 if grader is hidden'),
                 'grade'             => new external_value(PARAM_TEXT, 'grade'),
                 'gradefordisplay'   => new external_value(PARAM_RAW, 'grade rendered into a format suitable for display',
                                                             VALUE_OPTIONAL),
@@ -375,6 +375,7 @@ class mod_assign_external extends external_api {
                      'm.requireallteammemberssubmit, '.
                      'm.teamsubmissiongroupingid, ' .
                      'm.blindmarking, ' .
+                     'm.hidegrader, ' .
                      'm.revealidentities, ' .
                      'm.attemptreopenmethod, '.
                      'm.maxattempts, ' .
@@ -431,7 +432,7 @@ class mod_assign_external extends external_api {
                         'id' => $module->assignmentid,
                         'cmid' => $module->id,
                         'course' => $module->course,
-                        'name' => $module->name,
+                        'name' => external_format_string($module->name, $context),
                         'nosubmissions' => $module->nosubmissions,
                         'submissiondrafts' => $module->submissiondrafts,
                         'sendnotifications' => $module->sendnotifications,
@@ -448,6 +449,7 @@ class mod_assign_external extends external_api {
                         'requireallteammemberssubmit' => $module->requireallteammemberssubmit,
                         'teamsubmissiongroupingid' => $module->teamsubmissiongroupingid,
                         'blindmarking' => $module->blindmarking,
+                        'hidegrader' => $module->hidegrader,
                         'revealidentities' => $module->revealidentities,
                         'attemptreopenmethod' => $module->attemptreopenmethod,
                         'maxattempts' => $module->maxattempts,
@@ -474,8 +476,25 @@ class mod_assign_external extends external_api {
                     if ($module->requiresubmissionstatement) {
                         // Submission statement is required, return the submission statement value.
                         $adminconfig = get_config('assign');
-                        list($assignment['submissionstatement'], $assignment['submissionstatementformat']) = external_format_text(
-                                $adminconfig->submissionstatement, FORMAT_MOODLE, $context->id, 'mod_assign', '', 0);
+                        // Single submission.
+                        if (!$module->teamsubmission) {
+                            list($assignment['submissionstatement'], $assignment['submissionstatementformat']) =
+                                external_format_text($adminconfig->submissionstatement, FORMAT_MOODLE, $context->id,
+                                    'mod_assign', '', 0);
+                        } else { // Team submission.
+                            // One user can submit for the whole team.
+                            if (!empty($adminconfig->submissionstatementteamsubmission) && !$module->requireallteammemberssubmit) {
+                                list($assignment['submissionstatement'], $assignment['submissionstatementformat']) =
+                                    external_format_text($adminconfig->submissionstatementteamsubmission,
+                                        FORMAT_MOODLE, $context->id, 'mod_assign', '', 0);
+                            } else if (!empty($adminconfig->submissionstatementteamsubmissionallsubmit) &&
+                                $module->requireallteammemberssubmit) {
+                                // All team members must submit.
+                                list($assignment['submissionstatement'], $assignment['submissionstatementformat']) =
+                                    external_format_text($adminconfig->submissionstatementteamsubmissionallsubmit,
+                                        FORMAT_MOODLE, $context->id, 'mod_assign', '', 0);
+                            }
+                        }
                     }
 
                     $assignmentarray[] = $assignment;
@@ -509,7 +528,7 @@ class mod_assign_external extends external_api {
                 'id' => new external_value(PARAM_INT, 'assignment id'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'course' => new external_value(PARAM_INT, 'course id'),
-                'name' => new external_value(PARAM_TEXT, 'assignment name'),
+                'name' => new external_value(PARAM_RAW, 'assignment name'),
                 'nosubmissions' => new external_value(PARAM_INT, 'no submissions'),
                 'submissiondrafts' => new external_value(PARAM_INT, 'submissions drafts'),
                 'sendnotifications' => new external_value(PARAM_INT, 'send notifications'),
@@ -526,6 +545,7 @@ class mod_assign_external extends external_api {
                 'requireallteammemberssubmit' => new external_value(PARAM_INT, 'if enabled, all team members must submit'),
                 'teamsubmissiongroupingid' => new external_value(PARAM_INT, 'the grouping id for the team submission groups'),
                 'blindmarking' => new external_value(PARAM_INT, 'if enabled, hide identities until reveal identities actioned'),
+                'hidegrader' => new external_value(PARAM_INT, 'If enabled, hide grader to student'),
                 'revealidentities' => new external_value(PARAM_INT, 'show identities for a blind marking assignment'),
                 'attemptreopenmethod' => new external_value(PARAM_TEXT, 'method used to control opening new attempts'),
                 'maxattempts' => new external_value(PARAM_INT, 'maximum number of attempts allowed'),
@@ -2366,6 +2386,9 @@ class mod_assign_external extends external_api {
         if ($gradingsummary) {
             $result['gradingsummary'] = $gradingsummary;
         }
+        // Show the grader's identity if 'Hide Grader' is disabled or has the 'Show Hidden Grader' capability.
+        $showgradername = (has_capability('mod/assign:showhiddengrader', $context) or
+            !$assign->is_hidden_grader());
 
         // Did we submit anything?
         if ($lastattempt) {
@@ -2412,6 +2435,9 @@ class mod_assign_external extends external_api {
         // The feedback for our latest submission.
         if ($feedback) {
             if ($feedback->grade) {
+                if (!$showgradername) {
+                    $feedback->grade->grader = -1;
+                }
                 $feedbackplugins = $assign->get_feedback_plugins();
                 $feedback->plugins = self::get_plugins_data($assign, $feedbackplugins, $feedback->grade);
             } else {
@@ -2450,7 +2476,12 @@ class mod_assign_external extends external_api {
 
                 if ($grade) {
                     // From object to id.
-                    $grade->grader = $grade->grader->id;
+                    if (!$showgradername) {
+                        $grade->grader = -1;
+                    } else {
+                        $grade->grader = $grade->grader->id;
+                    }
+
                     $feedbackplugins = self::get_plugins_data($assign, $previousattempts->feedbackplugins, $grade);
 
                     $attempt['grade'] = $grade;
@@ -2550,7 +2581,9 @@ class mod_assign_external extends external_api {
                 'limit' => new external_value(PARAM_INT, 'maximum number of records to return', VALUE_DEFAULT, 0),
                 'onlyids' => new external_value(PARAM_BOOL, 'Do not return all user fields', VALUE_DEFAULT, false),
                 'includeenrolments' => new external_value(PARAM_BOOL, 'Do return courses where the user is enrolled',
-                                                          VALUE_DEFAULT, true)
+                                                          VALUE_DEFAULT, true),
+                'tablesort' => new external_value(PARAM_BOOL, 'Apply current user table sorting preferences.',
+                                                          VALUE_DEFAULT, false)
             )
         );
     }
@@ -2565,11 +2598,13 @@ class mod_assign_external extends external_api {
      * @param int $limit Maximum number of records to return
      * @param bool $onlyids Only return user ids.
      * @param bool $includeenrolments Return courses where the user is enrolled.
+     * @param bool $tablesort Apply current user table sorting params from the grading table.
      * @return array of warnings and status result
      * @since Moodle 3.1
      * @throws moodle_exception
      */
-    public static function list_participants($assignid, $groupid, $filter, $skip, $limit, $onlyids, $includeenrolments) {
+    public static function list_participants($assignid, $groupid, $filter, $skip,
+            $limit, $onlyids, $includeenrolments, $tablesort) {
         global $DB, $CFG;
         require_once($CFG->dirroot . "/mod/assign/locallib.php");
         require_once($CFG->dirroot . "/user/lib.php");
@@ -2582,7 +2617,8 @@ class mod_assign_external extends external_api {
                                                 'skip' => $skip,
                                                 'limit' => $limit,
                                                 'onlyids' => $onlyids,
-                                                'includeenrolments' => $includeenrolments
+                                                'includeenrolments' => $includeenrolments,
+                                                'tablesort' => $tablesort
                                             ));
         $warnings = array();
 
@@ -2594,7 +2630,7 @@ class mod_assign_external extends external_api {
 
         $participants = array();
         if (groups_group_visible($params['groupid'], $course, $cm)) {
-            $participants = $assign->list_participants_with_filter_status_and_group($params['groupid']);
+            $participants = $assign->list_participants_with_filter_status_and_group($params['groupid'], $params['tablesort']);
         }
 
         $userfields = user_get_default_fields();
@@ -2648,6 +2684,11 @@ class mod_assign_external extends external_api {
                 if (!empty($record->groupname)) {
                     $userdetails['groupname'] = $record->groupname;
                 }
+                // Unique id is required for blind marking.
+                $userdetails['recordid'] = -1;
+                if (!empty($record->recordid)) {
+                    $userdetails['recordid'] = $record->recordid;
+                }
 
                 $result[] = $userdetails;
             }
@@ -2679,6 +2720,7 @@ class mod_assign_external extends external_api {
         $userdesc->keys['profileimageurl']->required = VALUE_OPTIONAL;
         $userdesc->keys['email']->desc = 'Email address';
         $userdesc->keys['idnumber']->desc = 'The idnumber of the user';
+        $userdesc->keys['recordid'] = new external_value(PARAM_INT, 'record id');
 
         // Define other keys.
         $otherkeys = [

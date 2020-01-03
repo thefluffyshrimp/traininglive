@@ -639,7 +639,7 @@ class assign_events_testcase extends advanced_testcase {
         );
         $assign->testable_process_save_quick_grades($data);
         $grade = $assign->get_user_grade($student->id, false);
-        $this->assertEquals('60.0', $grade->grade);
+        $this->assertEquals(60.0, $grade->grade);
 
         $events = $sink->get_events();
         $this->assertCount(3, $events);
@@ -665,7 +665,7 @@ class assign_events_testcase extends advanced_testcase {
         $data->grade = '50.0';
         $assign->update_grade($data);
         $grade = $assign->get_user_grade($student->id, false, 0);
-        $this->assertEquals('50.0', $grade->grade);
+        $this->assertEquals(50.0, $grade->grade);
         $events = $sink->get_events();
 
         $this->assertCount(3, $events);

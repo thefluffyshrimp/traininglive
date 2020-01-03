@@ -68,7 +68,7 @@
         $PAGE->set_title(format_string($choice->name).": $strresponses");
         $PAGE->set_heading($course->fullname);
         echo $OUTPUT->header();
-        echo $OUTPUT->heading($choice->name, 2, null);
+        echo $OUTPUT->heading(format_string($choice->name), 2, null);
         /// Check to see if groups are being used in this choice
         $groupmode = groups_get_activity_groupmode($cm);
         if ($groupmode) {
@@ -285,7 +285,7 @@
 
         $downloadlist = html_writer::tag('ul', implode('', $downloadoptions), array('class' => 'list-inline inline'));
         $downloadlist .= html_writer::tag('div', '', array('class' => 'clearfloat'));
-        echo html_writer::tag('div',$downloadlist, array('class' => 'downloadreport m-t-1'));
+        echo html_writer::tag('div',$downloadlist, array('class' => 'downloadreport mt-1'));
     }
     echo $OUTPUT->footer();
 

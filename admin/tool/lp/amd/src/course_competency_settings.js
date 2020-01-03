@@ -147,7 +147,7 @@ define(['jquery',
 
         ajax.call([
             {methodname: 'tool_lp_data_for_course_competencies_page',
-              args: {courseid: courseId}}
+              args: {courseid: courseId, moduleid: 0}}
         ])[0]
         .then(function(context) {
             return templates.render('tool_lp/course_competencies_page', context);

@@ -56,6 +56,12 @@ define('BLOCK_MYOVERVIEW_PAGING_24', 24);
 define('BLOCK_MYOVERVIEW_PAGING_48', 48);
 
 /**
+ * Constants for the admin category display setting
+ */
+define('BLOCK_MYOVERVIEW_DISPLAY_CATEGORIES_ON', 'on');
+define('BLOCK_MYOVERVIEW_DISPLAY_CATEGORIES_OFF', 'off');
+
+/**
  * Get the current user preferences that are available
  *
  * @return mixed Array representing current options along with defaults
@@ -123,6 +129,6 @@ function block_myoverview_user_preferences() {
  */
 function block_myoverview_pre_course_delete(\stdClass $course) {
     // Removing any starred courses which have been created for users, for this course.
-    global $DB;
-    $DB->delete_records('favourite', ['component' => 'core_course', 'itemtype' => 'courses', 'itemid' => $course->id]);
+    $service = \core_favourites\service_factory::get_service_for_component('core_course');
+    $service->delete_favourites_by_type_and_item('courses', $course->id);
 }

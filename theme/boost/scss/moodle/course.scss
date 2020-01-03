@@ -42,6 +42,13 @@
     margin: 0;
 }
 
+body:not(.editing)  .sitetopic ul.section {
+    padding-left: 0;
+    .label .mod-indent-outer {
+        padding-left: 0;
+    }
+}
+
 .course-content ul.section {
     margin: $spacer;
 }
@@ -548,23 +555,6 @@ span.editinstructions {
     padding: .3em;
 }
 
-.dndupload-progress-outer {
-    background-color: $progress-bg;
-    @include border-radius($progress-border-radius);
-    @include box-shadow($progress-box-shadow);
-    display: block;
-    width: 100%;
-    height: $spacer-y;
-    margin-bottom: $spacer-y;
-}
-
-.dndupload-progress-inner {
-    background-color: $progress-bar-color;
-    @include border-left-radius($progress-border-radius);
-    display: inline-block;
-    height: $spacer-y;
-}
-
 .dndupload-hidden {
     display: none;
 }
@@ -618,14 +608,16 @@ span.editinstructions {
 .coursebox > .info > .coursename,
 .coursebox .content .teachers,
 .coursebox .content .courseimage,
-.coursebox .content .coursefile {
+.coursebox .content .coursefile,
+.coursebox .content .customfields-container {
     float: left;
     clear: left;
 }
 
 .coursebox .content .teachers,
 .coursebox .content .courseimage,
-.coursebox .content .coursefile {
+.coursebox .content .coursefile,
+.coursebox .content .customfields-container {
     width: 40%;
 }
 
@@ -684,7 +676,8 @@ span.editinstructions {
 .coursebox .content .courseimage,
 .coursebox .content .coursefile,
 .coursebox .content .teachers,
-.coursebox.remotecoursebox .remotecourseinfo {
+.coursebox.remotecoursebox .remotecourseinfo,
+.coursebox .content .customfields-container {
     margin: 15px 5px 5px;
     padding: 0;
 }

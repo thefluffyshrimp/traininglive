@@ -40,11 +40,11 @@ use html_writer;
  */
 class registration {
 
-    /** @var Fields used in a site registration form.
+    /** @var array Fields used in a site registration form.
      * IMPORTANT: any new fields with non-empty defaults have to be added to CONFIRM_NEW_FIELDS */
-    const FORM_FIELDS = ['name', 'description', 'contactname', 'contactemail', 'contactphone', 'imageurl', 'privacy', 'street',
-        'regioncode', 'countrycode', 'geolocation', 'contactable', 'emailalert', 'emailalertemail', 'commnews', 'commnewsemail',
-        'language', 'policyagreed'];
+    const FORM_FIELDS = ['policyagreed', 'language', 'countrycode', 'privacy',
+        'contactemail', 'contactable', 'emailalert', 'emailalertemail', 'commnews', 'commnewsemail',
+        'contactname', 'name', 'description', 'imageurl', 'contactphone', 'regioncode', 'geolocation', 'street'];
 
     /** @var List of new FORM_FIELDS or siteinfo fields added indexed by the version when they were added.
      * If site was already registered, admin will be promted to confirm new registration data manually. Until registration is manually confirmed,
@@ -56,6 +56,8 @@ class registration {
             'commnews', // Receive communication news. This was added in 3.4 and is "On" by default. Admin must confirm or opt-out.
             'mobileservicesenabled', 'mobilenotificationsenabled', 'registereduserdevices', 'registeredactiveuserdevices' // Mobile stats added in 3.4.
         ],
+        // Analytics stats added in Moodle 3.7.
+        2019022200 => ['analyticsenabledmodels', 'analyticspredictions', 'analyticsactions', 'analyticsactionsnotuseful'],
     ];
 
     /** @var Site privacy: not displayed */
@@ -195,6 +197,12 @@ class registration {
             }
         }
 
+        // Analytics related data follow.
+        $siteinfo['analyticsenabledmodels'] = \core_analytics\stats::enabled_models();
+        $siteinfo['analyticspredictions'] = \core_analytics\stats::predictions();
+        $siteinfo['analyticsactions'] = \core_analytics\stats::actions();
+        $siteinfo['analyticsactionsnotuseful'] = \core_analytics\stats::actions_not_useful();
+
         // IMPORTANT: any new fields in siteinfo have to be added to the constant CONFIRM_NEW_FIELDS.
 
         return $siteinfo;
@@ -235,6 +243,10 @@ class registration {
             'mobilenotificationsenabled' => get_string('mobilenotificationsenabled', 'hub', $mobilenotificationsenabled),
             'registereduserdevices' => get_string('registereduserdevices', 'hub', $siteinfo['registereduserdevices']),
             'registeredactiveuserdevices' => get_string('registeredactiveuserdevices', 'hub', $siteinfo['registeredactiveuserdevices']),
+            'analyticsenabledmodels' => get_string('analyticsenabledmodels', 'hub', $siteinfo['analyticsenabledmodels']),
+            'analyticspredictions' => get_string('analyticspredictions', 'hub', $siteinfo['analyticspredictions']),
+            'analyticsactions' => get_string('analyticsactions', 'hub', $siteinfo['analyticsactions']),
+            'analyticsactionsnotuseful' => get_string('analyticsactionsnotuseful', 'hub', $siteinfo['analyticsactionsnotuseful']),
         ];
 
         foreach ($senddata as $key => $str) {
@@ -336,6 +348,13 @@ class registration {
         $record['timemodified'] = time();
         $DB->update_record('registration_hubs', $record);
         self::$registration = null;
+
+        $siteinfo = self::get_site_info();
+        if (strlen(http_build_query($siteinfo)) > 1800) {
+            // Update registration again because the initial request was too long and could have been truncated.
+            api::update_registration($siteinfo);
+            self::$registration = null;
+        }
     }
 
     /**
@@ -384,10 +403,21 @@ class registration {
         }
 
         $params = self::get_site_info();
-        $params['token'] = $hub->token;
+
+        // The most conservative limit for the redirect URL length is 2000 characters. Only pass parameters before
+        // we reach this limit. The next registration update will update all fields.
+        // We will also update registration after we receive confirmation from moodle.net.
+        $url = new moodle_url(HUB_MOODLEORGHUBURL . '/local/hub/siteregistration.php',
+            ['token' => $hub->token, 'url' => $params['url']]);
+        foreach ($params as $key => $value) {
+            if (strlen($url->out(false, [$key => $value])) > 2000) {
+                break;
+            }
+            $url->param($key, $value);
+        }
 
         $SESSION->registrationredirect = $returnurl;
-        redirect(new moodle_url(HUB_MOODLEORGHUBURL . '/local/hub/siteregistration.php', $params));
+        redirect($url);
     }
 
     /**

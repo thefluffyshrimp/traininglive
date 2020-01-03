@@ -47,9 +47,9 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_block_recentlyaccesseditems_upgrade($oldversion, $block) {
     global $DB;
 
-    // Automatically generated Moodle v3.6.0 release upgrade line.
+    // Automatically generated Moodle v3.7.0 release upgrade line.
     // Put any upgrade step following this.
-    if ($oldversion < 2018120302) {
+    if ($oldversion < 2019052001) {
         // Query the items to be deleted as a list of IDs. We cannot delete directly from this as a
         // subquery because MySQL does not support delete with subqueries.
         $fordeletion = $DB->get_fieldset_sql("
@@ -66,7 +66,7 @@ function xmldb_block_recentlyaccesseditems_upgrade($oldversion, $block) {
             $DB->delete_records_list('block_recentlyaccesseditems', 'id', $chunk);
         }
 
-        upgrade_block_savepoint(true, 2018120302, 'recentlyaccesseditems', false);
+        upgrade_block_savepoint(true, 2019052001, 'recentlyaccesseditems', false);
     }
 
     return true;

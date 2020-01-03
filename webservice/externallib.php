@@ -207,6 +207,9 @@ class core_webservice_external extends external_api {
             $siteinfo['usercalendartype'] = $USER->calendartype;
         }
 
+        // Current theme.
+        $siteinfo['theme'] = clean_param($PAGE->theme->name, PARAM_THEME);  // We always clean to avoid problem with old sites.
+
         return $siteinfo;
     }
 
@@ -272,6 +275,7 @@ class core_webservice_external extends external_api {
                 'siteid'  => new external_value(PARAM_INT, 'Site course ID', VALUE_OPTIONAL),
                 'sitecalendartype'  => new external_value(PARAM_PLUGIN, 'Calendar type set in the site.', VALUE_OPTIONAL),
                 'usercalendartype'  => new external_value(PARAM_PLUGIN, 'Calendar typed used by the user.', VALUE_OPTIONAL),
+                'theme'  => new external_value(PARAM_THEME, 'Current theme for the user.', VALUE_OPTIONAL),
             )
         );
     }

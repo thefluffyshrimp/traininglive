@@ -272,6 +272,7 @@ class subscriptions {
         $sql = "SELECT $fields
                 FROM {user} u
                 JOIN ($esql) je ON je.id = u.id
+               WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
             ORDER BY $sort";
 
         return $DB->get_records_sql($sql, $params);
@@ -442,6 +443,7 @@ class subscriptions {
                         ) subscriptions
                         JOIN {user} u ON u.id = subscriptions.userid
                         JOIN ($esql) je ON je.id = u.id
+                        WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
                         ORDER BY u.email ASC";
 
             } else {
@@ -450,7 +452,7 @@ class subscriptions {
                         JOIN ($esql) je ON je.id = u.id
                         JOIN {forum_subscriptions} s ON s.userid = u.id
                         WHERE
-                          s.forum = :forumid
+                          s.forum = :forumid AND u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
                         ORDER BY u.email ASC";
             }
             $results = $DB->get_records_sql($sql, $params);
@@ -838,29 +840,28 @@ class subscriptions {
      * @return bool Default subscription
      * @throws coding_exception
      */
-    public static function get_user_default_subscription($forum, $context, $cm, $discussionid = null) {
+    public static function get_user_default_subscription($forum, $context, $cm, ?int $discussionid) {
         global $USER;
         $manageactivities = has_capability('moodle/course:manageactivities', $context);
-        if (self::subscription_disabled($forum) && !$manageactivities) {
+        if (\mod_forum\subscriptions::subscription_disabled($forum) && !$manageactivities) {
             // User does not have permission to subscribe to this discussion at all.
             $discussionsubscribe = false;
-        } else if (self::is_forcesubscribed($forum)) {
+        } else if (\mod_forum\subscriptions::is_forcesubscribed($forum)) {
             // User does not have permission to unsubscribe from this discussion at all.
             $discussionsubscribe = true;
         } else {
-            if (isset($discussion) && self::is_subscribed($USER->id, $forum, $discussionid, $cm)) {
+            if (isset($discussion) && \mod_forum\subscriptions::is_subscribed($USER->id, $forum, $discussionid, $cm)) {
                 // User is subscribed to the discussion - continue the subscription.
                 $discussionsubscribe = true;
-            } else if (!isset($discussionid) && self::is_subscribed($USER->id, $forum, null, $cm)) {
+            } else if (!isset($discussionid) && \mod_forum\subscriptions::is_subscribed($USER->id, $forum, null, $cm)) {
                 // Starting a new discussion, and the user is subscribed to the forum - subscribe to the discussion.
                 $discussionsubscribe = true;
             } else {
                 // User is not subscribed to either forum or discussion. Follow user preference.
-                $discussionsubscribe = $USER->autosubscribe ? $USER->autosubscribe : false;
+                $discussionsubscribe = $USER->autosubscribe ?? false;
             }
         }
 
         return $discussionsubscribe;
     }
-
 }

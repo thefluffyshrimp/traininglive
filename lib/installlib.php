@@ -346,18 +346,13 @@ function install_print_header($config, $stagename, $heading, $stagetext, $stagec
           <meta http-equiv="expires" content="0" />';
 
     echo '</head><body class="notloggedin">
-            <div id="page" class="stage'.$config->stage.'">
+            <div id="page" class="mt-0 container stage'.$config->stage.'">
                 <div id="page-header">
                     <div id="header" class=" clearfix">
                         <h1 class="headermain">'.get_string('installation','install').'</h1>
                         <div class="headermenu">&nbsp;</div>
                     </div>
-                    <div class="navbar clearfix">
-                        <nav class="breadcrumb-nav">
-                            <ul class="breadcrumb"><li class="first">'.$stagename.'</li></ul>
-                        </nav>
-                        <div class="navbutton">&nbsp;</div>
-                    </div>
+                    <div class="bg-light p-3 mb-3"><h3 class="m-0">'.$stagename.'</h3></div>
                 </div>
           <!-- END OF HEADER -->
           <div id="installdiv">';

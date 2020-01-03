@@ -53,15 +53,11 @@ class behat_admin extends behat_base {
         }
 
         foreach ($data as $label => $value) {
-
-            // We expect admin block to be visible, otherwise go to homepage.
-            if (!$this->getSession()->getPage()->find('css', '.block_settings')) {
-                $this->execute('behat_forms::i_am_on_homepage');
-            }
+            $this->execute('behat_navigation::i_select_from_flat_navigation_drawer', [get_string('administrationsite')]);
 
             // Search by label.
-            $this->execute('behat_forms::i_set_the_field_to', [get_string('searchinsettings', 'admin'), $label]);
-            $this->execute("behat_general::i_click_on_in_the", [get_string('search', 'admin'), 'button', '.block_settings', 'css_element']);
+            $this->execute('behat_forms::i_set_the_field_to', [get_string('query', 'admin'), $label]);
+            $this->execute("behat_forms::press_button", get_string('search', 'admin'));
 
             // Admin settings does not use the same DOM structure than other moodle forms
             // but we also need to use lib/behat/form_field/* to deal with the different moodle form elements.
@@ -72,18 +68,19 @@ class behat_admin extends behat_base {
 
             // Single element settings.
             try {
-                $fieldxpath = "//*[self::input | self::textarea | self::select][not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')]" .
-                    "[@id=//label[contains(normalize-space(.), $label)]/@for or " .
-                    "@id=//span[contains(normalize-space(.), $label)]/preceding-sibling::label[1]/@for]";
+                $fieldxpath = "//*[self::input | self::textarea | self::select]" .
+                        "[not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')]" .
+                        "[@id=//label[contains(normalize-space(.), $label)]/@for or " .
+                        "@id=//span[contains(normalize-space(.), $label)]/preceding-sibling::label[1]/@for]";
                 $fieldnode = $this->find('xpath', $fieldxpath, $exception);
 
             } catch (ElementNotFoundException $e) {
                 // Multi element settings, interacting only the first one.
-                $fieldxpath = "//*[label[normalize-space(.)= $label]|span[normalize-space(.)= $label]]/" .
-                    "ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' form-item ')]" .
-                    "/descendant::div[@class='form-group']/descendant::*[self::input | self::textarea | self::select]" .
-                    "[not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')]";
-                $fieldnode = $this->find('xpath', $fieldxpath);
+                $fieldxpath = "//*[label[contains(., $label)]|span[contains(., $label)]]" .
+                        "/ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' form-item ')]" .
+                        "/descendant::div[contains(concat(' ', @class, ' '), ' form-group ')]" .
+                        "/descendant::*[self::input | self::textarea | self::select]" .
+                        "[not(./@type = 'submit' or ./@type = 'image' or ./@type = 'hidden')]";
             }
 
             $this->execute('behat_forms::i_set_the_field_with_xpath_to', [$fieldxpath, $value]);

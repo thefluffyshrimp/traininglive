@@ -50,9 +50,10 @@ class behat_selectors {
      */
     public static function get_behat_selector($selectortype, $element, Behat\Mink\Session $session) {
         // Note: This function is not deprecated, but not the recommended way of doing things.
-        $normalised = $session->normalise_selector($selectortype, $element, $session->getPage());
-        $selector = $normalised['selector'];
-        $locator = $normalised['locator'];
+        [
+            'selector' => $selector,
+            'locator' => $locator,
+        ] = $session->normalise_selector($selectortype, $element, $session->getPage());
 
         // CSS and XPath selectors locator is one single argument.
         return [$selector, $locator];
@@ -106,7 +107,7 @@ class behat_selectors {
     public static function transform_find_for_field(behat_base $context, string $label, Element $container): array {
         $hasfieldset = strpos($label, '>');
         if (false !== $hasfieldset) {
-            list($containerlabel, $label) = explode(">", $label, 2);
+            [$containerlabel, $label] = explode(">", $label, 2);
             $container = $context->find_fieldset(trim($containerlabel), $container);
             $label = trim($label);
         }

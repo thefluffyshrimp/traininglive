@@ -30,10 +30,19 @@ require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/repository/lib.php');
 require_once($CFG->libdir . '/filestorage/stored_file.php');
 
+/**
+ * Unit tests for /lib/filestorage/file_storage.php
+ *
+ * @copyright 2012 David Mudrak <david@moodle.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversDefaultClass file_storage
+ */
 class core_files_file_storage_testcase extends advanced_testcase {
 
     /**
      * Files can be created from strings.
+     *
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string() {
         global $DB;
@@ -107,6 +116,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
     /**
      * Local files can be added to the filepool
+     *
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname() {
         global $CFG, $DB;
@@ -189,6 +200,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
     /**
      * Tests get get file.
+     *
+     * @covers ::get_file
      */
     public function test_get_file() {
         global $CFG;
@@ -226,7 +239,9 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * Local images can be added to the filepool and their preview can be obtained
      *
+     * @param stored_file $file
      * @depends test_get_file
+     * @covers ::get_file_preview
      */
     public function test_get_file_preview(stored_file $file) {
         global $CFG;
@@ -246,6 +261,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->get_file_preview($file, 'amodewhichdoesntexist');
     }
 
+    /**
+     * Tests for get_file_preview without an image.
+     *
+     * @covers ::get_file_preview
+     */
     public function test_get_file_preview_nonimage() {
         $this->resetAfterTest(true);
         $syscontext = context_system::instance();
@@ -271,6 +291,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
      * Make sure renaming is working
      *
      * @copyright 2012 Dongsheng Cai {@link http://dongsheng.org}
+     * @covers stored_file::rename
      */
     public function test_file_renaming() {
         global $CFG;
@@ -316,6 +337,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
      * Create file from reference tests
      *
      * @copyright 2012 Dongsheng Cai {@link http://dongsheng.org}
+     * @covers ::create_file_from_reference
      */
     public function test_create_file_from_reference() {
         global $CFG, $DB;
@@ -401,6 +423,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
      * Create file from reference tests
      *
      * @copyright 2012 Dongsheng Cai {@link http://dongsheng.org}
+     * @covers ::create_file_from_reference
      */
     public function test_create_file_from_reference_with_content_hash() {
         global $CFG, $DB;
@@ -506,6 +529,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         return $user;
     }
 
+    /**
+     * Tests for get_area_files
+     *
+     * @covers ::get_area_files
+     */
     public function test_get_area_files() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -561,6 +589,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEmpty($areafiles);
     }
 
+    /**
+     * Tests for get_area_tree
+     *
+     * @covers ::get_area_tree
+     */
     public function test_get_area_tree() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -615,6 +648,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals($filerecord['filename'], $subdirfile->get_filename());
     }
 
+    /**
+     * Tests for get_file_by_id
+     *
+     * @covers ::get_file_by_id
+     */
     public function test_get_file_by_id() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -631,6 +669,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertFalse($doesntexist);
     }
 
+    /**
+     * Tests for get_file_by_hash
+     *
+     * @covers ::get_file_by_hash
+     */
     public function test_get_file_by_hash() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -646,6 +689,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertFalse($doesntexist);
     }
 
+    /**
+     * Tests for get_external_files
+     *
+     * @covers ::get_external_files
+     */
     public function test_get_external_files() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -707,6 +755,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals($aliasfile3->get_referencefileid(), $aliasfile2->get_referencefileid());
     }
 
+    /**
+     * Tests for create_directory with a negative contextid.
+     *
+     * @covers ::create_directory
+     */
     public function test_create_directory_contextid_negative() {
         $fs = get_file_storage();
 
@@ -714,6 +767,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_directory(-1, 'core', 'unittest', 0, '/');
     }
 
+    /**
+     * Tests for create_directory with an invalid contextid.
+     *
+     * @covers ::create_directory
+     */
     public function test_create_directory_contextid_invalid() {
         $fs = get_file_storage();
 
@@ -721,6 +779,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_directory('not an int', 'core', 'unittest', 0, '/');
     }
 
+    /**
+     * Tests for create_directory with an invalid component.
+     *
+     * @covers ::create_directory
+     */
     public function test_create_directory_component_invalid() {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
@@ -729,6 +792,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_directory($syscontext->id, 'bad/component', 'unittest', 0, '/');
     }
 
+    /**
+     * Tests for create_directory with an invalid filearea.
+     *
+     * @covers ::create_directory
+     */
     public function test_create_directory_filearea_invalid() {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
@@ -737,6 +805,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_directory($syscontext->id, 'core', 'bad-filearea', 0, '/');
     }
 
+    /**
+     * Tests for create_directory with a negative itemid
+     *
+     * @covers ::create_directory
+     */
     public function test_create_directory_itemid_negative() {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
@@ -745,6 +818,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_directory($syscontext->id, 'core', 'unittest', -1, '/');
     }
 
+    /**
+     * Tests for create_directory with an invalid itemid
+     *
+     * @covers ::create_directory
+     */
     public function test_create_directory_itemid_invalid() {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
@@ -753,6 +831,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_directory($syscontext->id, 'core', 'unittest', 'notanint', '/');
     }
 
+    /**
+     * Tests for create_directory with an invalid filepath
+     *
+     * @covers ::create_directory
+     */
     public function test_create_directory_filepath_invalid() {
         $fs = get_file_storage();
         $syscontext = context_system::instance();
@@ -761,6 +844,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_directory($syscontext->id, 'core', 'unittest', 0, '/not-with-trailing/or-leading-slash');
     }
 
+    /**
+     * Tests for get_directory_files.
+     *
+     * @covers ::get_directory_files
+     */
     public function test_get_directory_files() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -818,6 +906,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         }
     }
 
+    /**
+     * Tests for search_references.
+     *
+     * @covers ::search_references
+     */
     public function test_search_references() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -890,6 +983,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertTrue($exceptionthrown);
     }
 
+    /**
+     * Tests for delete_area_files.
+     *
+     * @covers ::delete_area_files
+     */
     public function test_delete_area_files() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -905,6 +1003,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals(0, count($areafiles));
     }
 
+    /**
+     * Tests for delete_area_files using an itemid.
+     *
+     * @covers ::delete_area_files
+     */
     public function test_delete_area_files_itemid() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -919,6 +1022,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals(4, count($areafiles));
     }
 
+    /**
+     * Tests for delete_area_files_select.
+     *
+     * @covers ::delete_area_files_select
+     */
     public function test_delete_area_files_select() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -934,6 +1042,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals(0, count($areafiles));
     }
 
+    /**
+     * Tests for delete_component_files.
+     *
+     * @covers ::delete_component_files
+     */
     public function test_delete_component_files() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -945,6 +1058,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals(0, count($areafiles));
     }
 
+    /**
+     * Tests for create_file_from_url.
+     *
+     * @covers ::create_file_from_url
+     */
     public function test_create_file_from_url() {
         $this->resetAfterTest(true);
 
@@ -975,6 +1093,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $file3 = $this->assertInstanceOf('stored_file', $file3);
     }
 
+    /**
+     * Tests for cron.
+     *
+     * @covers ::cron
+     */
     public function test_cron() {
         $this->resetAfterTest(true);
 
@@ -986,6 +1109,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->cron();
     }
 
+    /**
+     * Tests for is_area_empty.
+     *
+     * @covers ::is_area_empty
+     */
     public function test_is_area_empty() {
         $user = $this->setup_three_private_files();
         $fs = get_file_storage();
@@ -998,6 +1126,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertTrue($fs->is_area_empty($user->ctxid, 'user', 'private', 9999, false));
     }
 
+    /**
+     * Tests for move_area_files_to_new_context.
+     *
+     * @covers ::move_area_files_to_new_context
+     */
     public function test_move_area_files_to_new_context() {
         $this->resetAfterTest(true);
 
@@ -1047,6 +1180,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertEquals($movedfile->get_contenthash(), $originalfile->get_contenthash());
     }
 
+    /**
+     * Tests for convert_image.
+     *
+     * @covers ::convert_image
+     */
     public function test_convert_image() {
         global $CFG;
 
@@ -1075,6 +1213,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $converted);
     }
 
+    /**
+     * Tests for convert_image with a PNG.
+     *
+     * @covers ::convert_image
+     */
     public function test_convert_image_png() {
         global $CFG;
 
@@ -1153,6 +1296,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
     /**
      * @expectedException        file_exception
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_file_invalid() {
         $this->resetAfterTest(true);
@@ -1168,6 +1312,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid contextid
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_contextid_invalid() {
         $this->resetAfterTest(true);
@@ -1187,6 +1332,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid component
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_component_invalid() {
         $this->resetAfterTest(true);
@@ -1206,6 +1352,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid filearea
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_filearea_invalid() {
         $this->resetAfterTest(true);
@@ -1225,6 +1372,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid itemid
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_itemid_invalid() {
         $this->resetAfterTest(true);
@@ -1244,6 +1392,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file path
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_filepath_invalid() {
         $this->resetAfterTest(true);
@@ -1263,6 +1412,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file name
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_filename_invalid() {
         $this->resetAfterTest(true);
@@ -1281,6 +1431,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file timecreated
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_timecreated_invalid() {
         $this->resetAfterTest(true);
@@ -1300,6 +1451,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file timemodified
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_timemodified_invalid() {
         $this->resetAfterTest(true);
@@ -1319,6 +1471,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        stored_file_creation_exception
      * @expectedExceptionMessage Can not create file "1/core/phpunit/0/testfile.txt"
+     * @covers ::create_file_from_storedfile
      */
     public function test_create_file_from_storedfile_duplicate() {
         $this->resetAfterTest(true);
@@ -1333,6 +1486,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
+    /**
+     * Tests for create_file_from_storedfile.
+     *
+     * @covers ::create_file_from_storedfile
+     */
     public function test_create_file_from_storedfile() {
         $this->resetAfterTest(true);
 
@@ -1370,6 +1528,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid contextid
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_contextid_invalid() {
         $this->resetAfterTest(true);
@@ -1385,6 +1544,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid component
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_component_invalid() {
         $this->resetAfterTest(true);
@@ -1400,6 +1560,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid filearea
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_filearea_invalid() {
         $this->resetAfterTest(true);
@@ -1415,6 +1576,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid itemid
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_itemid_invalid() {
         $this->resetAfterTest(true);
@@ -1430,6 +1592,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file path
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_filepath_invalid() {
         $this->resetAfterTest(true);
@@ -1445,6 +1608,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file name
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_filename_invalid() {
         $this->resetAfterTest(true);
@@ -1460,6 +1624,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file timecreated
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_timecreated_invalid() {
         $this->resetAfterTest(true);
@@ -1477,6 +1642,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file timemodified
+     * @covers ::create_file_from_string
      */
     public function test_create_file_from_string_timemodified_invalid() {
         $this->resetAfterTest(true);
@@ -1489,6 +1655,10 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $file1 = $fs->create_file_from_string($filerecord, 'text contents');
     }
 
+    /**
+     * Tests for create_file_from_string with a duplicate string.
+     * @covers ::create_file_from_string
+     */
     public function test_create_file_from_string_duplicate() {
         $this->resetAfterTest(true);
 
@@ -1505,6 +1675,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid contextid
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_contextid_invalid() {
         global $CFG;
@@ -1523,6 +1694,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid component
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_component_invalid() {
         global $CFG;
@@ -1541,6 +1713,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid filearea
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_filearea_invalid() {
         global $CFG;
@@ -1559,6 +1732,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid itemid
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_itemid_invalid() {
         global $CFG;
@@ -1577,6 +1751,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file path
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_filepath_invalid() {
         global $CFG;
@@ -1595,6 +1770,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file name
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_filename_invalid() {
         global $CFG;
@@ -1613,6 +1789,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file timecreated
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_timecreated_invalid() {
         global $CFG;
@@ -1631,6 +1808,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        file_exception
      * @expectedExceptionMessage Invalid file timemodified
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_timemodified_invalid() {
         global $CFG;
@@ -1649,6 +1827,7 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * @expectedException        stored_file_creation_exception
      * @expectedExceptionMessage Can not create file "1/core/phpunit/0/testfile.txt"
+     * @covers ::create_file_from_pathname
      */
     public function test_create_file_from_pathname_duplicate_file() {
         global $CFG;
@@ -1668,6 +1847,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
 
     /**
      * Calling stored_file::delete_reference() on a non-reference file throws coding_exception
+     *
+     * @covers stored_file::delete_reference
      */
     public function test_delete_reference_on_nonreference() {
 
@@ -1694,6 +1875,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * Calling stored_file::delete_reference() on a reference file does not affect other
      * symlinks to the same original
+     *
+     * @covers stored_file::delete_reference
      */
     public function test_delete_reference_one_symlink_does_not_rule_them_all() {
 
@@ -1859,6 +2042,11 @@ class core_files_file_storage_testcase extends advanced_testcase {
         $this->assertNull($symlink2->get_referencefileid());
     }
 
+    /**
+     * Tests for get_unused_filename.
+     *
+     * @covers ::get_unused_filename
+     */
     public function test_get_unused_filename() {
         global $USER;
         $this->resetAfterTest(true);
@@ -1924,6 +2112,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * Test that mimetype_from_file returns appropriate output when the
      * file could not be found.
+     *
+     * @covers ::mimetype
      */
     public function test_mimetype_not_found() {
         $mimetype = file_storage::mimetype('/path/to/nonexistent/file');
@@ -1937,6 +2127,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
      * Note: this is not intended to check that functions outside of this
      * file works. It is intended to validate the codepath contains no
      * errors and behaves as expected.
+     *
+     * @covers ::mimetype
      */
     public function test_mimetype_known() {
         $filepath = __DIR__ . '/fixtures/testimage.jpg';
@@ -1947,6 +2139,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
     /**
      * Test that mimetype_from_file returns appropriate output when the
      * file could not be found.
+     *
+     * @covers ::mimetype
      */
     public function test_mimetype_from_file_not_found() {
         $mimetype = file_storage::mimetype_from_file('/path/to/nonexistent/file');
@@ -1960,6 +2154,8 @@ class core_files_file_storage_testcase extends advanced_testcase {
      * Note: this is not intended to check that functions outside of this
      * file works. It is intended to validate the codepath contains no
      * errors and behaves as expected.
+     *
+     * @covers ::mimetype
      */
     public function test_mimetype_from_file_known() {
         $filepath = __DIR__ . '/fixtures/testimage.jpg';

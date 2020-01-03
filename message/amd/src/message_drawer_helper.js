@@ -63,17 +63,9 @@ function(
         PubSub.publish(MessageDrawerEvents.SHOW_SETTINGS);
     };
 
-    /**
-     * Trigger an event to show messaging contact requests page.
-     */
-    var showContactRequests = function() {
-        PubSub.publish(MessageDrawerEvents.SHOW_CONTACT_REQUESTS);
-    };
-
     return {
         createConversationWithUser: createConversationWithUser,
         show: show,
-        showContactRequests: showContactRequests,
         showConversation: showConversation,
         showSettings: showSettings
     };

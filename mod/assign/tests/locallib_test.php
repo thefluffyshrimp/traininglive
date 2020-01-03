@@ -1490,6 +1490,7 @@ class mod_assign_locallib_testcase extends advanced_testcase {
     }
 
     public function test_cron() {
+        global $PAGE;
         $this->resetAfterTest();
 
         // First run cron so there are no messages waiting to be sent (from other tests).
@@ -1519,6 +1520,15 @@ class mod_assign_locallib_testcase extends advanced_testcase {
         $this->assertEquals(1, count($messages));
         $this->assertEquals(1, $messages[0]->notification);
         $this->assertEquals($assign->get_instance()->name, $messages[0]->contexturlname);
+        // Test customdata.
+        $customdata = json_decode($messages[0]->customdata);
+        $this->assertEquals($assign->get_course_module()->id, $customdata->cmid);
+        $this->assertEquals($assign->get_instance()->id, $customdata->instance);
+        $this->assertEquals('feedbackavailable', $customdata->messagetype);
+        $userpicture = new user_picture($teacher);
+        $this->assertEquals($userpicture->get_url($PAGE)->out(false), $customdata->notificationiconurl);
+        $this->assertEquals(0, $customdata->uniqueidforuser);   // Not used in this case.
+        $this->assertFalse($customdata->blindmarking);
     }
 
     public function test_cron_without_notifications() {
@@ -3640,7 +3650,7 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
         $result = $assign->testable_process_save_quick_grades($data);
         $this->assertContains(get_string('quickgradingchangessaved', 'assign'), $result);
         $grade = $assign->get_user_grade($student->id, false);
-        $this->assertEquals('60.0', $grade->grade);
+        $this->assertEquals(60.0, $grade->grade);
 
         // Attempt to grade with a past attempts grade info.
         $assign->testable_process_add_attempt($student->id);
@@ -3664,7 +3674,7 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
         $result = $assign->testable_process_save_quick_grades($data);
         $this->assertContains(get_string('quickgradingchangessaved', 'assign'), $result);
         $grade = $assign->get_user_grade($student->id, false);
-        $this->assertEquals('40.0', $grade->grade);
+        $this->assertEquals(40.0, $grade->grade);
 
         // Catch grade update conflicts.
         // Save old data for later.
@@ -3678,13 +3688,13 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
         $result = $assign->testable_process_save_quick_grades($data);
         $this->assertContains(get_string('quickgradingchangessaved', 'assign'), $result);
         $grade = $assign->get_user_grade($student->id, false);
-        $this->assertEquals('30.0', $grade->grade);
+        $this->assertEquals(30.0, $grade->grade);
 
         // Now update using 'old' data. Should fail.
         $result = $assign->testable_process_save_quick_grades($pastdata);
         $this->assertContains(get_string('errorrecordmodified', 'assign'), $result);
         $grade = $assign->get_user_grade($student->id, false);
-        $this->assertEquals('30.0', $grade->grade);
+        $this->assertEquals(30.0, $grade->grade);
     }
 
     /**
@@ -3989,6 +3999,19 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
     }
 
     /**
+     * Test the result of get_filters is consistent.
+     */
+    public function test_get_filters() {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $assign = $this->create_instance($course);
+        $valid = $assign->get_filters();
+
+        $this->assertEquals(count($valid), 5);
+    }
+
+    /**
      * Test showing group override duedate for admin
      */
     public function test_view_group_override() {
@@ -4046,14 +4069,14 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
         $this->assertContains('Tuesday, 28 May 2019, 7:31 AM', $output1, '', true);
 
         $output2 = '';
-        // Teacher should be able to see all group override duedate.
+        // Teacher should should be able to see all group override duedate.
         $this->setUser($teacher);
         $summary = $assign->get_assign_grading_summary_renderable($group1->id);
         $output2 .= $assign->get_renderer()->render($summary);
         $this->assertContains('Friday, 20 September 2019, 10:37 PM', $output2, '', true);
+        $summary = $assign->get_assign_grading_summary_renderable($group2->id);
 
         $output3 = '';
-        $summary = $assign->get_assign_grading_summary_renderable($group2->id);
         $output3 .= $assign->get_renderer()->render($summary);
         $this->assertContains('Friday, 7 June 2019, 5:37 PM', $output3, '', true);
     }

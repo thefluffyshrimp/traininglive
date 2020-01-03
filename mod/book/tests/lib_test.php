@@ -45,19 +45,27 @@ class mod_book_lib_testcase extends advanced_testcase {
     }
 
     public function test_export_contents() {
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/course/externallib.php');
 
         $user = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course(array('enablecomment' => 1));
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
+
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, $teacherrole->id);
 
         // Test book with 3 chapters.
         $book = $this->getDataGenerator()->create_module('book', array('course' => $course->id));
         $cm = get_coursemodule_from_id('book', $book->cmid);
 
         $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
-        $chapter1 = $bookgenerator->create_chapter(array('bookid' => $book->id, "pagenum" => 1));
+        $chapter1 = $bookgenerator->create_chapter(array('bookid' => $book->id, "pagenum" => 1,
+            'tags' => array('Cats', 'Dogs')));
+        $tag = core_tag_tag::get_by_name(0, 'Cats');
+
         $chapter2 = $bookgenerator->create_chapter(array('bookid' => $book->id, "pagenum" => 2));
         $subchapter = $bookgenerator->create_chapter(array('bookid' => $book->id, "pagenum" => 3, "subchapter" => 1));
         $chapter3 = $bookgenerator->create_chapter(array('bookid' => $book->id, "pagenum" => 4, "hidden" => 1));
@@ -71,10 +79,105 @@ class mod_book_lib_testcase extends advanced_testcase {
         $this->assertEquals('structure', $contents[0]['filename']);
         $this->assertEquals('index.html', $contents[1]['filename']);
         $this->assertEquals('Chapter 1', $contents[1]['content']);
+        $this->assertCount(2, $contents[1]['tags']);
+        $this->assertEquals('Cats', $contents[1]['tags'][0]['rawname']);
+        $this->assertEquals($tag->id, $contents[1]['tags'][0]['id']);
+        $this->assertEquals('Dogs', $contents[1]['tags'][1]['rawname']);
         $this->assertEquals('index.html', $contents[2]['filename']);
         $this->assertEquals('Chapter 2', $contents[2]['content']);
         $this->assertEquals('index.html', $contents[3]['filename']);
         $this->assertEquals('Chapter 3', $contents[3]['content']);
+
+        // Now, test the function via the external API.
+        $contents = core_course_external::get_course_contents($course->id, array());
+        $contents = external_api::clean_returnvalue(core_course_external::get_course_contents_returns(), $contents);
+
+        $this->assertCount(4, $contents[0]['modules'][0]['contents']);
+
+        $this->assertEquals('content', $contents[0]['modules'][0]['contents'][0]['type']);
+        $this->assertEquals('structure', $contents[0]['modules'][0]['contents'][0]['filename']);
+
+        $this->assertEquals('file', $contents[0]['modules'][0]['contents'][1]['type']);
+        $this->assertEquals('Chapter 1', $contents[0]['modules'][0]['contents'][1]['content']);
+
+        $this->assertEquals('file', $contents[0]['modules'][0]['contents'][2]['type']);
+        $this->assertEquals('Chapter 2', $contents[0]['modules'][0]['contents'][2]['content']);
+
+        $this->assertEquals('file', $contents[0]['modules'][0]['contents'][3]['type']);
+        $this->assertEquals('Chapter 3', $contents[0]['modules'][0]['contents'][3]['content']);
+
+        $this->assertEquals('book', $contents[0]['modules'][0]['modname']);
+        $this->assertEquals($cm->id, $contents[0]['modules'][0]['id']);
+        $this->assertCount(2, $contents[0]['modules'][0]['contents'][1]['tags']);
+        $this->assertEquals('Cats', $contents[0]['modules'][0]['contents'][1]['tags'][0]['rawname']);
+        $this->assertEquals('Dogs', $contents[0]['modules'][0]['contents'][1]['tags'][1]['rawname']);
+
+        // As a teacher.
+        $this->setUser($teacher);
+
+        $contents = book_export_contents($cm, '');
+        // As a teacher, the hidden chapter must be included in the structure.
+        $this->assertCount(5, $contents);
+
+        $this->assertEquals('structure', $contents[0]['filename']);
+        // Check structure is correct.
+        $foundhiddenchapter = false;
+        $chapters = json_decode($contents[0]['content']);
+        foreach ($chapters as $chapter) {
+            if ($chapter->title == 'Chapter 4' && $chapter->hidden == 1) {
+                $foundhiddenchapter = true;
+            }
+        }
+        $this->assertTrue($foundhiddenchapter);
+
+        $this->assertEquals('index.html', $contents[1]['filename']);
+        $this->assertEquals('Chapter 1', $contents[1]['content']);
+        $this->assertCount(2, $contents[1]['tags']);
+        $this->assertEquals('Cats', $contents[1]['tags'][0]['rawname']);
+        $this->assertEquals($tag->id, $contents[1]['tags'][0]['id']);
+        $this->assertEquals('Dogs', $contents[1]['tags'][1]['rawname']);
+        $this->assertEquals('index.html', $contents[2]['filename']);
+        $this->assertEquals('Chapter 2', $contents[2]['content']);
+        $this->assertEquals('index.html', $contents[3]['filename']);
+        $this->assertEquals('Chapter 3', $contents[3]['content']);
+        $this->assertEquals('index.html', $contents[4]['filename']);
+        $this->assertEquals('Chapter 4', $contents[4]['content']);
+
+        // Now, test the function via the external API.
+        $contents = core_course_external::get_course_contents($course->id, array());
+        $contents = external_api::clean_returnvalue(core_course_external::get_course_contents_returns(), $contents);
+
+        $this->assertCount(5, $contents[0]['modules'][0]['contents']);
+
+        $this->assertEquals('content', $contents[0]['modules'][0]['contents'][0]['type']);
+        $this->assertEquals('structure', $contents[0]['modules'][0]['contents'][0]['filename']);
+        // Check structure is correct.
+        $foundhiddenchapter = false;
+        $chapters = json_decode($contents[0]['modules'][0]['contents'][0]['content']);
+        foreach ($chapters as $chapter) {
+            if ($chapter->title == 'Chapter 4' && $chapter->hidden == 1) {
+                $foundhiddenchapter = true;
+            }
+        }
+        $this->assertTrue($foundhiddenchapter);
+
+        $this->assertEquals('file', $contents[0]['modules'][0]['contents'][1]['type']);
+        $this->assertEquals('Chapter 1', $contents[0]['modules'][0]['contents'][1]['content']);
+
+        $this->assertEquals('file', $contents[0]['modules'][0]['contents'][2]['type']);
+        $this->assertEquals('Chapter 2', $contents[0]['modules'][0]['contents'][2]['content']);
+
+        $this->assertEquals('file', $contents[0]['modules'][0]['contents'][3]['type']);
+        $this->assertEquals('Chapter 3', $contents[0]['modules'][0]['contents'][3]['content']);
+
+        $this->assertEquals('file', $contents[0]['modules'][0]['contents'][4]['type']);
+        $this->assertEquals('Chapter 4', $contents[0]['modules'][0]['contents'][4]['content']);
+
+        $this->assertEquals('book', $contents[0]['modules'][0]['modname']);
+        $this->assertEquals($cm->id, $contents[0]['modules'][0]['id']);
+        $this->assertCount(2, $contents[0]['modules'][0]['contents'][1]['tags']);
+        $this->assertEquals('Cats', $contents[0]['modules'][0]['contents'][1]['tags'][0]['rawname']);
+        $this->assertEquals('Dogs', $contents[0]['modules'][0]['contents'][1]['tags'][1]['rawname']);
 
         // Test empty book.
         $emptybook = $this->getDataGenerator()->create_module('book', array('course' => $course->id));
