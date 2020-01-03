@@ -54,8 +54,8 @@ define(['jquery', 'core/ajax', 'core/templates', 'core/str'], function($, Ajax, 
             if (typeof enrolid === "undefined") {
                 enrolid = '';
             }
-            var perpage = parseInt($(selector).attr('perpage'));
-            if (isNaN(perpage)) {
+            var perpage = $(selector).attr('perpage');
+            if (typeof perpage === "undefined") {
                 perpage = 100;
             }
 

@@ -460,18 +460,18 @@ function url_get_variable_values($url, $cm, $course, $config) {
 
     $values = array (
         'courseid'        => $course->id,
-        'coursefullname'  => format_string($course->fullname, true, array('context' => $coursecontext)),
+        'coursefullname'  => format_string($course->fullname),
         'courseshortname' => format_string($course->shortname, true, array('context' => $coursecontext)),
         'courseidnumber'  => $course->idnumber,
         'coursesummary'   => $course->summary,
         'courseformat'    => $course->format,
         'lang'            => current_language(),
-        'sitename'        => format_string($site->fullname, true, array('context' => $coursecontext)),
+        'sitename'        => format_string($site->fullname),
         'serverurl'       => $CFG->wwwroot,
         'currenttime'     => time(),
         'urlinstance'     => $url->id,
         'urlcmid'         => $cm->id,
-        'urlname'         => format_string($url->name, true, array('context' => $coursecontext)),
+        'urlname'         => format_string($url->name),
         'urlidnumber'     => $cm->idnumber,
     );
 

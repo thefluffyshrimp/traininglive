@@ -77,7 +77,7 @@ $string['archivehelp'] = '<p>This option means that the badge will be marked as 
 $string['attachment'] = 'Attach badge to message';
 $string['attachment_help'] = 'If enabled, an issued badge will be attached to the recipient\'s email for download. (Attachments must be enabled in Site administration / Server / Email / Outgoing mail configuration to use this option.)';
 $string['award'] = 'Award badge';
-$string['awardedtoyou'] = 'Issued to me';
+$string['awardedtoyou'] = 'Issued to Me';
 $string['awardoncron'] = 'Access to the badges was successfully enabled. Too many users can instantly earn this badge. To ensure site performance, this action will take some time to process.';
 $string['awards'] = 'Recipients';
 $string['backpackavailability'] = 'External badge verification';
@@ -133,7 +133,7 @@ $string['backpacksettings'] = 'Backpack settings';
 $string['backpackapiurl'] = 'Backpack API URL';
 $string['backpackweburl'] = 'Backpack URL';
 $string['badges'] = 'Badges';
-$string['badgedetails'] = 'Badge details';
+$string['badgedetails'] = 'Badge Details';
 $string['badgeimage'] = 'Image';
 $string['badgeimage_help'] = 'This is an image that will be used when this badge is issued.
 
@@ -348,8 +348,8 @@ $string['expirydate'] = 'Expiry date';
 $string['expirydate_help'] = 'Optionally, badges can expire on a specific date, or the date can be calculated based on the date when the badge was issued to a user. ';
 $string['existsinbackpack'] = 'Badge already exists in backpack';
 $string['externalconnectto'] = 'To display external badges you need to <a href="{$a}">connect to a backpack</a>.';
-$string['externalbadges'] = 'My badges from other web sites';
-$string['externalbadgesp'] = 'Badges from other web sites:';
+$string['externalbadges'] = 'My Badges from Other Websites';
+$string['externalbadgesp'] = 'Badges from Other Websites:';
 $string['externalbadges_help'] = 'This area displays badges from your external backpack.';
 $string['fixed'] = 'Fixed date';
 $string['hidden'] = 'Hidden';
@@ -362,11 +362,12 @@ $string['imageauthorurl'] = 'Image author\'s URL';
 $string['imageauthorurl_help'] = 'If specified, a link to the badge image author\'s website is displayed on the badge page. The URL should have a prefix http:// or https://.';
 $string['invalidurl'] = 'Invalid URL';
 $string['issuedbadge'] = 'Issued badge information';
-$string['issuancedetails'] = 'Badge expiry';
-$string['issuerdetails'] = 'Issuer details';
+$string['issuancedetails'] = 'Badge Expiration';
+$string['issuerdetails'] = 'Issuer Details';
 $string['issueremail'] = 'Email';
 $string['issueremail_help'] = 'A contact email address of the organisation issuing the endorsement.';
 $string['issuername'] = 'Issuer name';
+$string['issuedate'] = 'Issue Date';
 $string['issuername_help'] = 'Name of the issuing agent or authority.';
 $string['issuername_endorsement'] = 'Endorser name';
 $string['issuername_endorsement_help'] = 'The name of the endorser.';
@@ -376,7 +377,7 @@ $string['language'] = 'Language';
 $string['language_help'] = 'The language used on the badge page.';
 $string['listbackpacks'] = 'List of backpacks';
 $string['localconnectto'] = 'To share these badges outside this web site you need to <a href="{$a}">connect to a backpack</a>.';
-$string['localbadges'] = 'My badges from {$a} web site';
+$string['localbadges'] = 'My Badges from {$a} ';
 $string['localbadgesh'] = 'My badges from this web site';
 $string['localbadgesh_help'] = 'All badges earned within this web site by completing courses, course activities, and other requirements.
 
@@ -386,7 +387,7 @@ You can download all of your badges or each badge separately and save them on yo
 $string['localbadgesp'] = 'Badges from {$a}:';
 $string['makeprivate'] = 'Make private';
 $string['makepublic'] = 'Make public';
-$string['managebadges'] = 'Manage badges';
+$string['managebadges'] = 'Manage Badges';
 $string['managebackpacks'] = 'Manage backpacks';
 $string['message'] = 'Message body';
 $string['messagebody'] = '<p>You have been awarded the badge "%badgename%"!</p>
@@ -411,7 +412,7 @@ $string['nobadges'] = 'There are no badges available.';
 $string['nocompetencies'] = 'No competencies selected.';
 $string['nocriteria'] = 'Criteria for this badge have not been set up yet.';
 $string['noendorsement'] = 'This badge does not have an endorsement.';
-$string['noexpiry'] = 'This badge does not have an expiry date.';
+$string['noexpiry'] = 'This badge does not have an expiration date.';
 $string['noparamstoadd'] = 'There are no additional parameters available to add to this badge requirement.';
 $string['norelated'] = 'This badge does not have any related badges.';
 $string['notacceptedrole'] = 'Your current role assignment is not among the roles that can manually issue this badge.<br/>
@@ -479,7 +480,7 @@ $string['recipientdetails'] = 'Recipient details';
 $string['recipientidentificationproblem'] = 'Cannot find a recipient of this badge among the existing users.';
 $string['recipientvalidationproblem'] = 'Current user cannot be verified as a recipient of this badge.';
 $string['relative'] = 'Relative date';
-$string['relatedbages'] = 'Related badges';
+$string['relatedbages'] = 'Related Badges';
 $string['revoke'] = 'Revoke badge';
 $string['requiredcohort'] = 'At least one cohort should be added to the cohort criterion.';
 $string['requiredcompetency'] = 'At least one competency should be added to the competency criterion.';
@@ -554,17 +555,6 @@ $string['version'] = 'Version';
 $string['version_help'] = 'The version field may be used to keep track of the badge\'s development. If specified, the version is displayed on the badge page.';
 $string['warnexpired'] = ' (This badge has expired!)';
 $string['year'] = 'Year(s)';
-
-// Deprecated since Moodle 3.3.
-$string['personaconnection'] = 'Sign in with your email';
-$string['personaconnection_help'] = 'Persona is a system for identifying yourself across the web, using an email address that you own. The Open Badges backpack uses Persona as a login system, so to be able to connect to a backpack you will need a Persona account.
-
-For more information about Persona visit <a href="https://login.persona.org/about">https://login.persona.org/about</a>.';
-$string['error:backpackloginfailed'] = 'You could not be connected to an external backpack for the following reason: {$a}';
-$string['error:badjson'] = 'The connection attempt returned invalid data.';
-$string['error:noassertion'] = 'No assertion was returned by Persona. You may have closed the dialog before completing the login process.';
-$string['error:personaneedsjs'] = 'Currently, Javascript is required to connect to your backpack. If you can, enable Javascript and reload the page.';
-$string['signinwithyouremail'] = 'Sign in with your email';
 
 // Deprecated since Moodle 3.6.
 $string['error:invalidbadgeurl'] = 'Invalid issuer URL format. The URL should have a prefix http:// or https://.';

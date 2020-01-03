@@ -364,3 +364,14 @@
 .card-footer .icon {
     display: none;
 }
+#theme_switch_link{
+  display: none;
+}
+
+.purgecaches{
+  display: none;
+}
+
+#page-login-forgot_password .page-header-headings{
+  display: none;
+}

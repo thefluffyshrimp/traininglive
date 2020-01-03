@@ -24,6 +24,6 @@
 
 $string['eventgradereportviewed'] = 'Grade overview report viewed';
 $string['gradesoverview'] = 'Grades overview';
-$string['pluginname'] = 'Overview report';
+$string['pluginname'] = 'Overview Report';
 $string['privacy:metadata'] = 'The Grade overview report only shows data stored in other locations.';
 $string['overview:view'] = 'View the overview report';

@@ -72,13 +72,19 @@ $groups = array();
 $orphans = array();
 foreach ($settings->children as $setting) {
     if ($setting->has_children()) {
+       if($setting->key !== 'blogs'){
         $groups[] = new preferences_group($setting->get_content(), $setting->children);
-    } else {
+       }
+    }
+     else {
         $orphans[] = $setting;
     }
+
 }
+
 if (!empty($orphans)) {
     $groups[] = new preferences_group(get_string('miscellaneous'), $orphans);
+    $groups[] = new preferences_group(get_string('blogs'), $orphans);
 }
 $preferences = new preferences_groups($groups);
 

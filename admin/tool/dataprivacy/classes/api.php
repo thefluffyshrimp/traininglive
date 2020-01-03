@@ -712,7 +712,7 @@ class api {
             'requestedby' => $requestedby->fullname,
             'requesttype' => $typetext,
             'requestdate' => userdate($requestdata->timecreated),
-            'requestorigin' => format_string($SITE->fullname, true, ['context' => context_system::instance()]),
+            'requestorigin' => $SITE->fullname,
             'requestoriginurl' => new moodle_url('/'),
             'requestcomments' => $requestdata->messagehtml,
             'datarequestsurl' => $datarequestsurl

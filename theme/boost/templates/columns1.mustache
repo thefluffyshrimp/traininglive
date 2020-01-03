@@ -39,13 +39,14 @@
 {{> theme_boost/head }}
 
 <body {{{ bodyattributes }}}>
+{{> core/local/toast/wrapper}}
 
-<div id="page-wrapper" class="d-print-block">
+<div id="page-wrapper">
 
     {{{ output.standard_top_of_body_html }}}
 
-    <div id="page" class="container-fluid d-print-block">
-        <div id="page-content" class="row pb-3 d-print-block">
+    <div id="page" class="container-fluid">
+        <div id="page-content" class="row pb-3">
             <div id="region-main-box" class="col-12">
                 <section id="region-main" aria-label="{{#str}}content{{/str}}">
                     {{{ output.course_content_header }}}

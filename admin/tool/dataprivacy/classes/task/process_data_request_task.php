@@ -26,7 +26,6 @@ namespace tool_dataprivacy\task;
 
 use action_link;
 use coding_exception;
-use context_system;
 use core\message\message;
 use core\task\adhoc_task;
 use core_user;
@@ -181,8 +180,7 @@ class process_data_request_task extends adhoc_task {
                 $message->contexturl = $datarequestsurl;
                 $message->contexturlname = get_string('datarequests', 'tool_dataprivacy');
                 // Message to the recipient.
-                $messagetextdata['message'] = get_string('resultdownloadready', 'tool_dataprivacy',
-                    format_string($SITE->fullname, true, ['context' => context_system::instance()]));
+                $messagetextdata['message'] = get_string('resultdownloadready', 'tool_dataprivacy', $SITE->fullname);
                 // Prepare download link.
                 $downloadurl = moodle_url::make_pluginfile_url($usercontext->id, 'tool_dataprivacy', 'export', $thing->get_itemid(),
                     $thing->get_filepath(), $thing->get_filename(), true);
@@ -194,8 +192,7 @@ class process_data_request_task extends adhoc_task {
                 // No point notifying a deleted user in Moodle.
                 $message->notification = 0;
                 // Message to the recipient.
-                $messagetextdata['message'] = get_string('resultdeleted', 'tool_dataprivacy',
-                    format_string($SITE->fullname, true, ['context' => context_system::instance()]));
+                $messagetextdata['message'] = get_string('resultdeleted', 'tool_dataprivacy', $SITE->fullname);
                 // Message will be sent to the deleted user via email only.
                 $emailonly = true;
                 break;

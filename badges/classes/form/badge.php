@@ -219,6 +219,12 @@ class badge extends moodleform {
         if ($data['imageauthoremail'] && !validate_email($data['imageauthoremail'])) {
             $errors['imageauthoremail'] = get_string('invalidemail');
         }
+        $draftitemid = $data['image'];
+        $fileinfo = file_get_draft_area_info($draftitemid);
+
+             if ($fileinfo['filesize'] > 262144) {
+                 $errors['image'] = get_string('userquotalimit', 'error');
+             }
 
         // Check for duplicate badge names.
         if ($data['action'] == 'new') {

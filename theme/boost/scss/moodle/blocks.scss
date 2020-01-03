@@ -49,7 +49,7 @@ $blocks-plus-gutter: $blocks-column-width + ( $grid-gutter-width / 2 );
 .region_main_settings_menu_proxy {
     width: 4rem;
     height: 2rem;
-    background-color: $body-bg;
+    background-color: $card-bg;
     margin-left: $card-spacer-x / 2;
     margin-bottom: $card-spacer-x / 2;
     border-bottom-left-radius: 0.5rem;
@@ -66,6 +66,20 @@ $blocks-plus-gutter: $blocks-column-width + ( $grid-gutter-width / 2 );
         /* MDL-63102 - Remove extra space at bottom.
         If modifying make sure block-region is horizontally stacked when in full screen */
         display: block;
+    }
+}
+
+.header-action {
+    #region-main-settings-menu {
+        position: unset;
+        float: none;
+        width: auto;
+
+        & > div {
+            position: unset;
+            right: auto;
+            margin: 0;
+        }
     }
 }
 

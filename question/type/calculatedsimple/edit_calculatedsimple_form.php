@@ -508,7 +508,8 @@ class qtype_calculatedsimple_edit_form extends qtype_calculated_edit_form {
                             $mform->addElement('hidden', "number[{$j}]", '');
                             $mform->setType("number[{$j}]", PARAM_LOCALISEDFLOAT); // Localisation handling has to be done manually.
                             if (isset($this->formdata["number[{$j}]"])) {
-                                $this->formdata["number[{$j}]"] = format_float($this->formdata["number[{$j}]"], -1);
+                                $number = $this->formdata["number[{$j}]"];
+                                $this->formdata["number[{$j}]"] = format_float($number, strlen($number), true, true);
                             }
                         }
 

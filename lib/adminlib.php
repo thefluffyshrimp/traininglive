@@ -132,17 +132,26 @@ function uninstall_plugin($type, $name) {
     $subplugintypes = core_component::get_plugin_types_with_subplugins();
     if (isset($subplugintypes[$type])) {
         $base = core_component::get_plugin_directory($type, $name);
-        if (file_exists("$base/db/subplugins.php")) {
-            $subplugins = array();
-            include("$base/db/subplugins.php");
-            foreach ($subplugins as $subplugintype=>$dir) {
+
+        $subpluginsfile = "{$base}/db/subplugins.json";
+        if (file_exists($subpluginsfile)) {
+            $subplugins = (array) json_decode(file_get_contents($subpluginsfile))->plugintypes;
+        } else if (file_exists("{$base}/db/subplugins.php")) {
+            debugging('Use of subplugins.php has been deprecated. ' .
+                    'Please update your plugin to provide a subplugins.json file instead.',
+                    DEBUG_DEVELOPER);
+            $subplugins = [];
+            include("{$base}/db/subplugins.php");
+        }
+
+        if (!empty($subplugins)) {
+            foreach (array_keys($subplugins) as $subplugintype) {
                 $instances = core_component::get_plugin_list($subplugintype);
                 foreach ($instances as $subpluginname => $notusedpluginpath) {
                     uninstall_plugin($subplugintype, $subpluginname);
                 }
             }
         }
-
     }
 
     $component = $type . '_' . $name;  // eg. 'qtype_multichoice' or 'workshopgrading_accumulative' or 'mod_forum'
@@ -8249,7 +8258,7 @@ function admin_externalpage_setup($section, $extrabutton = '', array $extraurlpa
     $PAGE->set_context(null); // hack - set context to something, by default to system context
 
     $site = get_site();
-    require_login();
+    require_login(null, false);
 
     if (!empty($options['pagelayout'])) {
         // A specific page layout has been requested.
@@ -8395,12 +8404,10 @@ function admin_get_root($reload=false, $requirefulltree=true) {
  * @return array $settingsoutput The names and values of the changed settings
  */
 function admin_apply_default_settings($node=null, $unconditional=true, $admindefaultsettings=array(), $settingsoutput=array()) {
-    $counter = 0;
 
     if (is_null($node)) {
         core_plugin_manager::reset_caches();
         $node = admin_get_root(true, true);
-        $counter = count($settingsoutput);
     }
 
     if ($node instanceof admin_category) {
@@ -8413,7 +8420,7 @@ function admin_apply_default_settings($node=null, $unconditional=true, $admindef
 
     } else if ($node instanceof admin_settingpage) {
         foreach ($node->settings as $setting) {
-            if (!$unconditional && !is_null($setting->get_setting())) {
+            if (!$unconditional and !is_null($setting->get_setting())) {
                 // Do not override existing defaults.
                 continue;
             }
@@ -8439,7 +8446,7 @@ function admin_apply_default_settings($node=null, $unconditional=true, $admindef
     }
 
     // Call this function recursively until all settings are processed.
-    if (($node instanceof admin_root) && ($counter != count($settingsoutput))) {
+    if (($node instanceof admin_root) && (!empty($admindefaultsettings))) {
         $settingsoutput = admin_apply_default_settings(null, $unconditional, $admindefaultsettings, $settingsoutput);
     }
     // Just in case somebody modifies the list of active plugins directly.
@@ -8603,7 +8610,6 @@ function admin_search_settings_html($query) {
                 if (array_key_exists($fullname, $adminroot->errors)) {
                     $data = $adminroot->errors[$fullname]->data;
                 } else {
-                    $data = $setting->get_setting();
                     $data = $setting->get_setting();
                 // do not use defaults if settings not available - upgradesettings handles the defaults!
                 }
@@ -10867,9 +10873,9 @@ class admin_setting_scsscode extends admin_setting_configtextarea {
         $scss = new core_scss();
         try {
             $scss->compile($data);
-        } catch (Leafo\ScssPhp\Exception\ParserException $e) {
+        } catch (ScssPhp\ScssPhp\Exception\ParserException $e) {
             return get_string('scssinvalid', 'admin', $e->getMessage());
-        } catch (Leafo\ScssPhp\Exception\CompilerException $e) {
+        } catch (ScssPhp\ScssPhp\Exception\CompilerException $e) {
             // Silently ignore this - it could be a scss variable defined from somewhere
             // else which we are not examining here.
             return true;

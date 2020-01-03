@@ -175,18 +175,12 @@ class MoodleQuickForm_float extends MoodleQuickForm_text {
      */
     private function format_float($value) {
         if (is_numeric($value)) {
-            // We want to keep trailing zeros after the decimal point if there is any.
-            // Therefore we cannot just call format_float() and pass -1 as the number of decimal points.
-            $pieces = preg_split('/E/i', $value); // In case it is in the scientific format.
-            $decimalpos = strpos($pieces[0], '.');
-            if ($decimalpos !== false) {
-                $decimalpart = substr($pieces[0], $decimalpos + 1);
-                $decimals = strlen($decimalpart);
+            if ($value > 0) {
+                $decimals = strlen($value) - strlen(floor($value)) - 1;
             } else {
-                $decimals = 0;
+                $decimals = strlen($value) - strlen(ceil($value)) - 1;
             }
-            $pieces[0] = format_float($pieces[0], $decimals);
-            $value = implode('E', $pieces);
+            $value = format_float($value, $decimals);
         }
         return $value;
     }

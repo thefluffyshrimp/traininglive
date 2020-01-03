@@ -372,13 +372,14 @@ class core_course_renderer extends plugin_renderer_base {
                 $inputsize = 30;
         }
 
-        $data = (object) [
-                'searchurl' => (new moodle_url('/course/search.php'))->out(false),
-                'id' => $formid,
-                'inputid' => $inputid,
-                'inputsize' => $inputsize,
-                'value' => $value
-        ];
+        $data = new stdClass();
+        $data->searchurl = \core_search\manager::get_course_search_url()->out(false);
+        $data->id = $formid;
+        $data->inputid = $inputid;
+        $data->inputsize = $inputsize;
+        $data->value = $value;
+        $data->areaids = 'core_course-course';
+
         if ($format != 'navbar') {
             $helpicon = new \help_icon('coursesearch', 'core');
             $data->helpicon = $helpicon->export_for_template($this);
@@ -2316,6 +2317,8 @@ class core_course_renderer extends plugin_renderer_base {
                     if (!empty($mycourseshtml)) {
                         $output .= $this->frontpage_part('skipmycourses', 'frontpage-course-list',
                             get_string('mycourses'), $mycourseshtml);
+                        $output .= '<hr>';
+
                     }
                     break;
 
@@ -2323,9 +2326,11 @@ class core_course_renderer extends plugin_renderer_base {
                     $availablecourseshtml = $this->frontpage_available_courses();
                     $output .= $this->frontpage_part('skipavailablecourses', 'frontpage-available-course-list',
                         get_string('availablecourses'), $availablecourseshtml);
+
                     break;
 
                 case FRONTPAGECATEGORYNAMES:
+                    $output .= '<hr>'; 
                     $output .= $this->frontpage_part('skipcategories', 'frontpage-category-names',
                         get_string('categories'), $this->frontpage_categories_list());
                     break;
@@ -2337,6 +2342,7 @@ class core_course_renderer extends plugin_renderer_base {
 
                 case FRONTPAGECOURSESEARCH:
                     $output .= $this->box($this->course_search_form('', 'short'), 'mdl-align');
+                    $output .= '<hr>';
                     break;
 
             }
