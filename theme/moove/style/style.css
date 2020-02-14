@@ -375,3 +375,7 @@
 #page-login-forgot_password .page-header-headings{
   display: none;
 }
+li.contentnode.ICQ.number {
+    display: none;
+}
+
