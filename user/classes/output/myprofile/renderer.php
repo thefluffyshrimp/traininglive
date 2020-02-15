@@ -100,7 +100,10 @@ class renderer extends \plugin_renderer_base {
             $header .= $this->render($icon);
         }
         $content = $node->content;
-        $classes = $node->classes;
+        $classes = $node->classes .$header;
+        if ($header !='ICQ number') {
+            $classes = $node->classes;
+        }
         if (!empty($content)) {
             if ($header) {
                 // There is some content to display below this make this a header.
