@@ -231,7 +231,7 @@ $string['forumcustomtemplatedesc'] = 'Enable that in order to use a pretty templ
 $string['coursesections'] = 'Course Sections';
 
 // Mypublic page.
-$string['userprofile'] = 'User profile';
+$string['userprofile'] = 'User Profile';
 $string['competencyplans'] = 'Competency plans';
 $string['details'] = 'Details';
 $string['startedon'] = 'Started on';
