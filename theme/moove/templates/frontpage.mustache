@@ -65,6 +65,11 @@
                 {{/hasregionmainsettingsmenu}}
                 <section id="region-main">
                     <div class="card">
+                     {{#capability}}
+                <div class="pull-right createnewclass">
+                    <a class="card-link btn btn-primary" href="{{addcourseurl}}">Create New class </a>
+                 </div>
+                 {{/capability}}
                         <div class="card-body">
                             {{#hasregionmainsettingsmenu}}
                                 <div class="region_main_settings_menu_proxy"></div>

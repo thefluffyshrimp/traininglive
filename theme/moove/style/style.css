@@ -3,11 +3,11 @@
 }*/
 
 .pagelayout-admin .page-header-headings h1{
-	display: none;
+  display: none;
 }
 
 .pagelayout-frontpage .page-header-headings h1{
-	display: none;
+  display: none;
 }
 
 .mobilefooter.mb-2 {
@@ -15,7 +15,7 @@
 }
 
 .tool_dataprivacy{
-	display: none;
+  display: none;
 }
 
 .box.py-3.generalbox.adminerror {
@@ -36,7 +36,7 @@
 }
 
 .coursesearchbox button.btn.btn-secondary{
-	color: #fff;
+  color: #fff;
     background-color: #1abc9c;
     border-color: #1abc9c;
 }
@@ -382,6 +382,14 @@ li.contentnode.ICQ.number {
 #page-site-index.notloggedin #page-header #loginbox #intro h1 {
     color: #4ce0c3 !important;
 }
+.createnewclass{
+    position: absolute;
+    right: 0px;
+    width: 200px;
+    padding-top: 50px;
+    padding-bottom: 15px;
+
+}
 
 @media only screen and (max-width: 991px) {
 #page-site-index.notloggedin #page-header #loginbox #intro h2{
@@ -423,6 +431,14 @@ li.contentnode.ICQ.number {
 #region-main .card .card-body {
     overflow-x: scroll;
 }
+.createnewclass{
+    position: absolute;
+    right: 50px;
+    width: 200px;
+    padding-top: 10px;
+    padding-bottom: 15px;
+
+}
 }
 @media only screen and (max-width: 580px) {
   #page-site-index.notloggedin #page-header {
@@ -432,5 +448,13 @@ li.contentnode.ICQ.number {
 }
 #page-site-index.notloggedin #page-header{
     padding: 0 2rem !important;
+}
+.createnewclass{
+    position: absolute;
+    right: 50px;
+    width: 200px;
+    padding-top: 10px;
+    padding-bottom: 15px;
+
 }
 }

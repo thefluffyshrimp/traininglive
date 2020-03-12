@@ -47,7 +47,8 @@ if (isloggedin()) {
     if ($draweropenright && $hasblocks) {
         $extraclasses[] = 'drawer-open-right';
     }
-
+    $context = get_context_instance(CONTEXT_SYSTEM, SITEID);
+    $capability=has_capability('moodle/course:create',$context);
     $bodyattributes = $OUTPUT->body_attributes($extraclasses);
     $regionmainsettingsmenu = $OUTPUT->region_main_settings_menu();
     $templatecontext = [
@@ -60,7 +61,9 @@ if (isloggedin()) {
         'navdraweropen' => $navdraweropen,
         'draweropenright' => $draweropenright,
         'regionmainsettingsmenu' => $regionmainsettingsmenu,
-        'hasregionmainsettingsmenu' => !empty($regionmainsettingsmenu)
+        'hasregionmainsettingsmenu' => !empty($regionmainsettingsmenu),
+        'addcourseurl' => new moodle_url('/course/edit.php'),
+        'capability'=>$capability
     ];
 
     // Improve boost navigation.
