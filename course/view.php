@@ -57,7 +57,7 @@
     }
 
     require_login($course);
-    $badges = badges_get_user_badges($USER->id, $COURSE->id, 0, 0);
+   $badges = badges_get_user_badges($USER->id, $COURSE->id, 0, 0);
    $coursefullname = format_string($course->fullname, true, $COURSE->id);
    //print_r($badges);
    if($badges && $coursefullname=='MISS.MOE Verified Trainer'){
@@ -265,7 +265,19 @@
     }
 
     $PAGE->set_heading($course->fullname);
+
     echo $OUTPUT->header();
+    $cContext = context_course::instance($COURSE->id);
+    $contextid=$cContext->id;
+    $roleassignments = $DB->get_record('role_assignments', array('userid' => $USER->id,'contextid' => $contextid));
+    //echo $roleassignments->roleid;
+
+    if($roleassignments->roleid==5){
+    $coursename=$DB->get_record('course', array('id' => $course->id));
+    $creater=$DB->get_record('user', array('id' => $coursename->created_by));
+    $creatorname=$creater->firstname.' '.$creater->lastname;
+    echo '<div class="creator">Course Created By :'. ' <a href="'.$CFG->wwwroot .'/user/profile.php?id='.$creater->id.'">'.$creatorname.'</a></div>';
+    }
 
     if ($USER->editing == 1 && !empty($CFG->enableasyncbackup)) {
 
