@@ -1333,6 +1333,9 @@ $string['newactivityname'] = 'New name for activity {$a}';
 $string['newcourse'] = 'New course';
 $string['newpassword'] = 'New password';
 $string['newpassword_help'] = 'Enter a new password or leave blank to keep current password.';
+$string['timestart'] = 'Event Time';
+$string['timestart_help'] = 'Please enter a time for your event in 24-hour format. (For example, 7:00pm would need to be input as 19:00).';
+
 $string['newpasswordfromlost'] = '<strong>NOTICE:</strong> Your <strong>Current password</strong> will have been sent to you in the <strong>second</strong> of the two emails sent as part of the lost password recovery process. Make sure you have received your replacement password before continuing with this screen.';
 $string['newpasswordtext'] = 'Hi {$a->firstname},
 
