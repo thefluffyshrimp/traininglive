@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -16,7 +16,7 @@ class course_edit_form extends moodleform {
      * Form definition.
      */
     function definition() {
-        global $CFG, $PAGE;
+        global $CFG, $PAGE,$USER;
 
         $mform    = $this->_form;
         $PAGE->requires->yui_module('moodle-course-formatchooser', 'M.course.init_formatchooser',
@@ -62,6 +62,14 @@ class course_edit_form extends moodleform {
         if (!empty($course->id) and !has_capability('moodle/course:changefullname', $coursecontext)) {
             $mform->hardFreeze('fullname');
             $mform->setConstant('fullname', $course->fullname);
+
+        }
+        
+        $mform->addElement('hidden', 'created_by');
+        $mform->setDefault('created_by', $USER->id);
+        if (!empty($course->id)) {
+           $mform->hardFreeze('created_by');
+            $mform->setConstant('created_by', $course->created_by);    
         }
 
         $mform->addElement('text', 'shortname', get_string('shortnamecourse'), 'maxlength="100" size="20"');
@@ -78,6 +86,7 @@ class course_edit_form extends moodleform {
             if (has_capability('moodle/course:create', $categorycontext)) {
                 $displaylist = core_course_category::make_categories_list('moodle/course:create');
                 $mform->addElement('select', 'category', get_string('coursecategory'), $displaylist);
+                $mform->addRule('category', $strrequired, 'required', null, 'client');
                 $mform->addHelpButton('category', 'coursecategory');
                 $mform->setDefault('category', $category->id);
             } else {
@@ -94,6 +103,7 @@ class course_edit_form extends moodleform {
                         ->get_formatted_name();
                 }
                 $mform->addElement('select', 'category', get_string('coursecategory'), $displaylist);
+                $mform->addRule('category', $strrequired, 'required', null, 'client');
                 $mform->addHelpButton('category', 'coursecategory');
             } else {
                 //keep current
@@ -126,7 +136,7 @@ class course_edit_form extends moodleform {
         $date->modify('+1 day');
         $mform->setDefault('startdate', $date->getTimestamp());
 
-        $mform->addElement('date_time_selector', 'enddate', get_string('enddate'), array('optional' => true));
+        $mform->addElement('date_time_selector', 'enddate', get_string('enddate'),array('optional' => true));
         $mform->addHelpButton('enddate', 'enddate');
 
         if (!empty($CFG->enablecourserelativedates)) {
@@ -161,11 +171,12 @@ class course_edit_form extends moodleform {
         $mform->addElement('header', 'descriptionhdr', get_string('description'));
         $mform->setExpanded('descriptionhdr');
 
-        $mform->addElement('editor','summary_editor', get_string('coursesummary'), null, $editoroptions);
+        $mform->addElement('editor','summary_editor', get_string('coursesummary'),null, $editoroptions);
+        $mform->addRule('summary_editor', $strrequired, 'required', null, 'client');
         $mform->addHelpButton('summary_editor', 'coursesummary');
         $mform->setType('summary_editor', PARAM_RAW);
         $summaryfields = 'summary_editor';
-
+ 
         if ($overviewfilesoptions = course_overviewfiles_options($course)) {
             $mform->addElement('filemanager', 'overviewfiles_filemanager', get_string('courseoverviewfiles'), null, $overviewfilesoptions);
             $mform->addHelpButton('overviewfiles_filemanager', 'courseoverviewfiles');
@@ -208,7 +219,8 @@ class course_edit_form extends moodleform {
         $mform->setType('addcourseformatoptionshere', PARAM_BOOL);
 
         // Appearance.
-        $mform->addElement('header', 'appearancehdr', get_string('appearance'));
+        if(is_siteadmin()){
+            $mform->addElement('header', 'appearancehdr', get_string('appearance'));
 
         if (!empty($CFG->allowcoursethemes)) {
             $themeobjects = get_list_of_themes();
@@ -255,8 +267,13 @@ class course_edit_form extends moodleform {
         $mform->addHelpButton('showreports', 'showreports');
         $mform->setDefault('showreports', $courseconfig->showreports);
 
+        }
+        
+
         // Files and uploads.
-        $mform->addElement('header', 'filehdr', get_string('filesanduploads'));
+        if(is_siteadmin()){
+
+            $mform->addElement('header', 'filehdr', get_string('filesanduploads'));
 
         if (!empty($course->legacyfiles) or !empty($CFG->legacyfilesinnewcourses)) {
             if (empty($course->legacyfiles)) {
@@ -278,17 +295,37 @@ class course_edit_form extends moodleform {
         $coursemaxbytes = !isset($course->maxbytes) ? null : $course->maxbytes;
 
         // Let's prepare the maxbytes popup.
+        //$choices = get_max_upload_sizes($CFG->maxbytes, 0, 0, $coursemaxbytes);
+        //$choices = get_max_upload_sizes($courseconfig->maxbytes);
         $choices = get_max_upload_sizes($CFG->maxbytes, 0, 0, $coursemaxbytes);
         $mform->addElement('select', 'maxbytes', get_string('maximumupload'), $choices);
+        //$option =array();
+        //$option[0]=$choices[20971520];
+        //$mform->addElement('select', 'maxbytes', get_string('maximumupload'),$option);
         $mform->addHelpButton('maxbytes', 'maximumupload');
         $mform->setDefault('maxbytes', $courseconfig->maxbytes);
 
+        }
+        
+
         // Completion tracking.
         if (completion_info::is_enabled_for_site()) {
+            if(is_siteadmin()){
+                if($courseconfig->enablecompletion==1){
+                $option='Yes';
+            }
+            else{
+                $option='No';
+            }
+            $choices = array();
+            $choices[0] = $option;
             $mform->addElement('header', 'completionhdr', get_string('completion', 'completion'));
-            $mform->addElement('selectyesno', 'enablecompletion', get_string('enablecompletion', 'completion'));
+            $mform->addElement('select', 'enablecompletion', get_string('enablecompletion', 'completion'),$choices);
             $mform->setDefault('enablecompletion', $courseconfig->enablecompletion);
             $mform->addHelpButton('enablecompletion', 'enablecompletion', 'completion');
+
+            }
+            
         } else {
             $mform->addElement('hidden', 'enablecompletion');
             $mform->setType('enablecompletion', PARAM_INT);
@@ -338,6 +375,7 @@ class course_edit_form extends moodleform {
             $mform->addElement('header', 'tagshdr', get_string('tags', 'tag'));
             $mform->addElement('tags', 'tags', get_string('tags'),
                     array('itemtype' => 'course', 'component' => 'core'));
+            $mform->addRule('tags', $strrequired, 'required', null, 'client');
         }
 
         // Add custom fields to the form.

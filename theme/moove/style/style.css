@@ -458,3 +458,29 @@ li.contentnode.ICQ.number {
 
 }
 }
+#page-login-index #region-main{
+    overflow-x: visible;
+}
+#fitem_id_overviewfiles_filemanager{
+  display:none;
+}
+#id_rolerenaming{
+  display: none;
+}
+#page-login-index #region-main .my-1.my-sm-5 {
+    display: none;
+}
+.row.justify-content-center.my-4 {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important; 
+}
+#page-login-index #region-main .mt-4, .my-4 {
+     margin-top: 0 !important; 
+}
+
+.calendarwrapper .header.d-flex.flex-wrap {
+    display: none !important;
+}
+#page-login-index .container-fluid{
+    padding: 0rem 2rem 0 2rem!important;
+}
