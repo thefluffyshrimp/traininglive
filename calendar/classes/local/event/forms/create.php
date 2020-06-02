@@ -61,7 +61,7 @@ class create extends \moodleform {
      * The form definition
      */
     public function definition() {
-        global $PAGE;
+        global $PAGE, $USER,$CFG;
 
         $mform = $this->_form;
         $starttime = isset($this->_customdata['starttime']) ? $this->_customdata['starttime'] : 0;
@@ -87,8 +87,28 @@ class create extends \moodleform {
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
 
+        $zone='';
+        if($USER->timezone=='99'){
+            $zone=$CFG->timezone;  
+        }
+        else{
+            $zone =$USER->timezone;
+        }
+
+        $attrArray = array('disabled' => 'disabled');
+        $mform->addElement('text', 'timezone', 'Timezone',$attrArray);
+        $mform->setType('timezone', PARAM_TEXT);
+        $mform->setDefault('timezone', $zone);
+
+
         // Event time start field.
         $mform->addElement('date_time_selector', 'timestart', get_string('date'), ['defaulttime' => $starttime]);
+        //$mform->setAdvanced('timestart');
+        //$helpbuuton='Please enter a time for your event in 24-hour format. (For example, 7:00pm would need to be input as 19:00';
+        $mform->addHelpButton('timestart', 'timestart');
+
+
+        //$mform->addElement('date_time_selector', 'timestart', get_string('date'), ['defaulttime' => $starttime]);
 
         // Add the select elements for the available event types.
         $this->add_event_type_elements($mform, $eventtypes);
