@@ -4024,6 +4024,37 @@ class joomdle_helpers_external extends external_api {
 
         return $return;
     }
+//********************mytimeline
+    public static function my_timeline_parameters() {
+        return new external_function_parameters(
+                        array(
+                            'username' => new external_value(PARAM_TEXT, 'Username'),
+                            
+                        )
+        );
+    }
+
+    public static function my_timeline_returns() {
+        return new external_multiple_structure(
+            new external_single_structure(
+                array(
+                    'category' => new external_value(PARAM_TEXT, 'category'),
+                    'time' => new external_value(PARAM_TEXT, 'time'),
+                )
+            )
+        );
+    }
+
+    public static function my_timeline($username) {
+        global $CFG, $DB;
+
+        $params = self::validate_parameters(self::my_timeline_parameters(), array('username' => $username));
+
+        $auth = new  auth_plugin_joomdle ();
+        $return = $auth->my_timeline ($username);
+
+        return $return;
+    }
 
     /* get_course_grades */
     public static function get_course_grades_parameters() {

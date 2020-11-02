@@ -6183,6 +6183,36 @@ class auth_plugin_joomdle extends auth_plugin_manual {
         return $scorm_courses;
     }
 
+    public function my_timeline ($username,$course=null) {
+        global $USER,$CFG,$DB;
+        require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
+        require_once($CFG->dirroot.'/user/profile/lib.php');
+        require_once($CFG->libdir . "/badgeslib.php");
+
+        $username = strtolower ($username);
+
+        $user = get_complete_user_data ('username', $username);
+
+        if (!$user)
+            return array ();
+       
+        $timelines =get_progressbar($user->id,$course=null);
+
+        $bs = array ();     
+        foreach($timelines as $key => $value) {
+          
+            $b = array ();
+            $b['category']= $value['categoryname'];
+            $b['time'] =  $value['totaltime'];
+            
+            $bs[] = $b;   
+
+        }
+
+
+      return $bs;
+    }
+
     public function my_badges ($username, $n = 10) {
         global $CFG;
         require_once($CFG->libdir . "/badgeslib.php");
