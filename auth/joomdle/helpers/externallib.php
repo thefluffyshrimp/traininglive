@@ -3992,6 +3992,40 @@ class joomdle_helpers_external extends external_api {
         return $id;
     }
 
+     /* group_courses */
+    public static function group_courses_parameters() {
+        return new external_function_parameters(
+                        array(
+                            'groupid' => new external_value(PARAM_INT, 'groupid'),
+                        )
+        );
+    }
+
+    public static function group_courses_returns() {
+        return new external_multiple_structure(
+            new external_single_structure(
+                array(
+                    'fullname' => new external_value(PARAM_TEXT, 'fullname'),
+                    'id' => new external_value(PARAM_TEXT, 'id'),
+                    'image_url' => new external_value(PARAM_TEXT, 'image url'),
+                    
+                )
+            )
+        );
+    }
+
+    public static function group_courses($groupid) {
+        global $CFG, $DB;
+
+        $params = self::validate_parameters(self::group_courses_parameters(), array('groupid' => $groupid));
+
+        $auth = new  auth_plugin_joomdle ();
+        $return = $auth->group_courses ($groupid);
+
+        return $return;
+    }
+    /////////////
+
     /* my_badges */
     public static function my_badges_parameters() {
         return new external_function_parameters(
@@ -4009,6 +4043,7 @@ class joomdle_helpers_external extends external_api {
                     'name' => new external_value(PARAM_TEXT, 'badge name'),
                     'hash' => new external_value(PARAM_TEXT, 'unique hash'),
                     'image_url' => new external_value(PARAM_TEXT, 'image url'),
+                    'skills' => new external_value(PARAM_TEXT, 'skills'),
                 )
             )
         );
@@ -4024,6 +4059,39 @@ class joomdle_helpers_external extends external_api {
 
         return $return;
     }
+//********************mytimeline
+    public static function my_timeline_parameters() {
+        return new external_function_parameters(
+                        array(
+                            'username' => new external_value(PARAM_TEXT, 'Username'),
+                            
+                        )
+        );
+    }
+
+    public static function my_timeline_returns() {
+        return new external_multiple_structure(
+            new external_single_structure(
+                array(
+                    'category' => new external_value(PARAM_TEXT, 'category'),
+                    'time' => new external_value(PARAM_TEXT, 'time'),
+                )
+            )
+        );
+    }
+
+    public static function my_timeline($username) {
+        global $CFG, $DB;
+
+        $params = self::validate_parameters(self::my_timeline_parameters(), array('username' => $username));
+
+        $auth = new  auth_plugin_joomdle ();
+        $return = $auth->my_timeline ($username);
+
+        return $return;
+    }
+
+
 
     /* get_course_grades */
     public static function get_course_grades_parameters() {
@@ -4040,7 +4108,7 @@ class joomdle_helpers_external extends external_api {
                 new external_single_structure(
                     array(
                         'email' => new external_value(PARAM_TEXT, 'email'),
-						'username' => new external_value(PARAM_TEXT, 'username'),
+                        'username' => new external_value(PARAM_TEXT, 'username'),
                         'firstname' => new external_value(PARAM_TEXT, 'fistname'),
                         'lastname' => new external_value(PARAM_TEXT, 'lastname'),
                         'grades' => new external_multiple_structure(

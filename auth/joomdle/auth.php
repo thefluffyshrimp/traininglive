@@ -1,3 +1,4 @@
+
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
@@ -3366,7 +3367,7 @@ class auth_plugin_joomdle extends auth_plugin_manual {
         global $CFG, $DB, $SESSION;
 
         // Set language
-		$SESSION->lang = $lang;
+        $SESSION->lang = $lang;
 
         $text = utf8_decode ($text);
         $wheres = array();
@@ -3484,7 +3485,7 @@ class auth_plugin_joomdle extends auth_plugin_manual {
         global $CFG, $DB, $SESSION;
 
         // Set language
-		$SESSION->lang = $lang;
+        $SESSION->lang = $lang;
 
         $wheres = array();
         $params = array ();
@@ -3573,7 +3574,7 @@ class auth_plugin_joomdle extends auth_plugin_manual {
         global $CFG, $DB, $SESSION;
 
         // Set language
-		$SESSION->lang = $lang;
+        $SESSION->lang = $lang;
 
         $wheres = array();
         switch ($phrase) {
@@ -4023,13 +4024,13 @@ class auth_plugin_joomdle extends auth_plugin_manual {
             if (!$ra)
             {
                 // Insert new row.
-				$ra = new stdClass();
-				$ra->roleid = $roleid;
-				$ra->contextid = $context->id;
-				$ra->userid = $user->id;
+                $ra = new stdClass();
+                $ra->roleid = $roleid;
+                $ra->contextid = $context->id;
+                $ra->userid = $user->id;
                 $ra->timemodified = time ();
                 $ra->modifierid = $USER->id;
-				$DB->insert_record("role_assignments", $ra);
+                $DB->insert_record("role_assignments", $ra);
             }
             else
             {
@@ -6183,6 +6184,74 @@ class auth_plugin_joomdle extends auth_plugin_manual {
         return $scorm_courses;
     }
 
+    public function my_timeline ($username,$course=null) {
+        global $USER,$CFG,$DB;
+        require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
+        require_once($CFG->dirroot.'/user/profile/lib.php');
+        require_once($CFG->libdir . "/badgeslib.php");
+
+        $username = strtolower ($username);
+
+        $user = get_complete_user_data ('username', $username);
+
+        if (!$user)
+            return array ();
+       
+        $timelines =get_progressbar($user->id,$course=null);
+
+        $bs = array ();     
+        foreach($timelines as $key => $value) {
+          
+            $b = array ();
+            $b['category']= $value['categoryname'];
+            $b['time'] =  $value['totaltime'];
+            
+            $bs[] = $b;   
+
+        }
+
+
+      return $bs;
+    }
+
+    public function group_courses ($groupid=14) {
+       
+        global $CFG,$DB,$COURSE,$USER;
+        require_once($CFG->libdir . '/coursecatlib.php');
+        require_once( $CFG->libdir . '/filelib.php' );
+
+
+        $courses = $DB->get_records_sql('SELECT * FROM {block_course_joomsocial} WHERE groupid = "'.$groupid.'"');
+
+        $bs = array ();
+        
+        foreach ($courses as $key => $value) {
+            $course = $DB->get_record('course', array('id' => $value->courseid));
+            $b = array ();
+            if($course){
+            $b['fullname'] = $course->fullname;
+            $b['id'] = $course->id;
+                           $context = context_course::instance($course->id);
+               $fs = get_file_storage();
+               $files = $fs->get_area_files( $context->id, 'course', 'overviewfiles', 0 );
+
+               foreach ( $files as $f )
+               {
+                 if ( $f->is_valid_image() )
+                 {
+                    $url = moodle_url::make_pluginfile_url( $f->get_contextid(), $f->get_component(), $f->get_filearea(), null, $f->get_filepath(), $f->get_filename(), false );
+                 }
+               }
+         
+            $b['image_url'] = (string) $url;
+            $bs[] = $b;
+           
+            }
+        }
+         
+        return $bs;
+    }
+
     public function my_badges ($username, $n = 10) {
         global $CFG;
         require_once($CFG->libdir . "/badgeslib.php");
@@ -6205,6 +6274,7 @@ class auth_plugin_joomdle extends auth_plugin_manual {
             $context = ($badge->type == BADGE_TYPE_SITE) ? context_system::instance() : context_course::instance($badge->courseid);
             $image_url = moodle_url::make_pluginfile_url($context->id, 'badges', 'badgeimage', $badge->id, '/', 'f1', false);
             $b['image_url'] = (string) $image_url;
+            $b['skills'] = $badge->skills;
 
             $bs[] = $b;
         }
@@ -6672,20 +6742,16 @@ class auth_plugin_joomdle extends auth_plugin_manual {
     private function update_joomla_sessions () {
         global $CFG, $DB;
         $cutoff = time() - 300;
-
         $query = "SELECT username FROM {$CFG->prefix}user WHERE auth = 'joomdle' and lastaccess > ?;";
         $params = array ($cutoff);
         $records = $DB->get_records_sql($query, $params);
         $usernames = array();
         foreach ($records as $record)
             $usernames[] = $record->username;
-
         $updates = $this->call_method ("updateSessions", $usernames);
     }
-
     public function cron() {
         $this->update_joomla_sessions();
     }
-    */
-
+   */
 }
