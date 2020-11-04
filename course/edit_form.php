@@ -311,19 +311,11 @@ class course_edit_form extends moodleform {
         // Completion tracking.
         if (completion_info::is_enabled_for_site()) {
             if(is_siteadmin()){
-                if($courseconfig->enablecompletion==1){
-                $option='Yes';
-            }
-            else{
-                $option='No';
-            }
-            $choices = array();
-            $choices[0] = $option;
+            $choices = array('1'=>get_string('yes'));   
             $mform->addElement('header', 'completionhdr', get_string('completion', 'completion'));
             $mform->addElement('select', 'enablecompletion', get_string('enablecompletion', 'completion'),$choices);
             $mform->setDefault('enablecompletion', $courseconfig->enablecompletion);
             $mform->addHelpButton('enablecompletion', 'enablecompletion', 'completion');
-
             }
             
         } else {

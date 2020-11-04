@@ -4292,6 +4292,7 @@ EOD;
      * @return string
      */
     public function context_header_settings_menu() {
+        global $USER, $CFG, $DB, $SESSION;
         $context = $this->page->context;
         $menu = new action_menu();
 
@@ -4352,10 +4353,13 @@ EOD;
 
                 // We only add a list to the full settings menu if we didn't include every node in the short menu.
                 if ($skipped) {
+                    if(is_siteadmin()){
                     $text = get_string('morenavigationlinks');
                     $url = new moodle_url('/course/admin.php', array('courseid' => $this->page->course->id));
                     $link = new action_link($url, $text, null, null, new pix_icon('t/edit', $text));
                     $menu->add_secondary_action($link);
+                    }
+                    
                 }
             }
         } else if ($showcoursemenu) {
@@ -4366,10 +4370,17 @@ EOD;
 
                 // We only add a list to the full settings menu if we didn't include every node in the short menu.
                 if ($skipped) {
+                    $cContext = context_course::instance($this->page->course->id);
+                    $contextid=$cContext->id;
+                    $roleassignments = $DB->get_record('role_assignments', array('userid' => $USER->id,'contextid' => $contextid));
+                    if($roleassignments->roleid!=5){
                     $text = get_string('morenavigationlinks');
                     $url = new moodle_url('/course/admin.php', array('courseid' => $this->page->course->id));
                     $link = new action_link($url, $text, null, null, new pix_icon('t/edit', $text));
                     $menu->add_secondary_action($link);
+
+                    }
+                    
                 }
             }
         } else if ($showusermenu) {

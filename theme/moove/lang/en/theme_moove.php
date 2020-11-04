@@ -235,5 +235,7 @@ $string['userprofile'] = 'User Profile';
 $string['competencyplans'] = 'Competency plans';
 $string['details'] = 'Details';
 $string['startedon'] = 'Started on';
+$string['estimatetime'] = 'Estimate Time';
 $string['addcontact'] = 'Add contact';
 $string['removecontact'] = 'Remove contact';
+

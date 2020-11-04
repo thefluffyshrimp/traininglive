@@ -636,6 +636,7 @@ abstract class moodleform_mod extends moodleform {
             // So it uses a long name that will not conflict.
             $mform->addElement('textarea', 'availabilityconditionsjson',
                     get_string('accessrestrictions', 'availability'));
+
             // The _cm variable may not be a proper cm_info, so get one from modinfo.
             if ($this->_cm) {
                 $modinfo = get_fast_modinfo($COURSE);
@@ -1078,6 +1079,7 @@ abstract class moodleform_mod extends moodleform {
 
         $mform->addElement('editor', 'introeditor', $label, array('rows' => 10), array('maxfiles' => EDITOR_UNLIMITED_FILES,
             'noclean' => true, 'context' => $this->context, 'subdirs' => true));
+
         $mform->setType('introeditor', PARAM_RAW); // no XSS prevention here, users must be trusted
         if ($required) {
             $mform->addRule('introeditor', get_string('required'), 'required', null, 'client');
@@ -1089,6 +1091,12 @@ abstract class moodleform_mod extends moodleform {
             $mform->addElement('advcheckbox', 'showdescription', get_string('showdescription'));
             $mform->addHelpButton('showdescription', 'showdescription');
         }
+
+         //////Estimattime/////////////////////////////////
+
+        $mform->addElement('duration', 'estimate_time', 'Estimated Time');
+        $mform->setAdvanced('estimate_time', 0);
+        $mform->setDefault('estimate_time', 0);
     }
 
     /**

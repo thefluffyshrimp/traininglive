@@ -75,8 +75,8 @@ if (!empty($badge->recipient->id)) {
         $facebookURL = 'https://www.facebook.com/sharer/sharer.php?u='.$url;
         $linkedInURL = 'https://www.linkedin.com/shareArticle?mini=true&url='.$url.'&amp;title='.$sb_title;
         
-        echo $OUTPUT->container('<a class="fa fa-twitter-square fa-2x" href="'. $twitterURL .'" target="_blank" rel="nofollow"></a>  <a class="fa fa-facebook-square fa-2x" href="'.$facebookURL.'" target="_blank" rel="nofollow"></a>  <a class="fa fa-linkedin-square fa-2x" href="'.$linkedInURL.'" target="_blank" rel="nofollow"></a>');
-        
+    echo $OUTPUT->container('<a class="fa fa-twitter-square fa-2x" href="'. $twitterURL .'" target="_blank" rel="nofollow"></a>  <a class="fa fa-facebook-square fa-2x" href="'.$facebookURL.'" target="_blank" rel="nofollow"></a>  <a class="fa fa-linkedin-square fa-2x" href="'.$linkedInURL.'" target="_blank" rel="nofollow"></a>');
+
     echo $output->render($badge);
 } else {
     echo $OUTPUT->header();

@@ -226,6 +226,8 @@ class course_renderer extends \core_course_renderer {
      */
     protected function coursecat_coursebox_content(coursecat_helper $chelper, $course) {
         global $CFG, $DB;
+        require_once($CFG->dirroot.'/course/lib.php');
+
 
         if ($course instanceof stdClass) {
             $course = new core_course_list_element($course);
@@ -259,14 +261,26 @@ class course_renderer extends \core_course_renderer {
         $content .= html_writer::start_tag('div', array('class' => 'card-body'));
         $content .= "<h4 class='card-title'>". $coursenamelink ."</h4>";
 
+         $estimated =get_estimate_time($course->id);
+         if($estimated){
+           $content .= html_writer::start_tag('p', array('class' => 'estimate-time'));
+           $content .= 'Time :' . $estimated;
+           $content .= html_writer::end_tag('p'); // E 
+         }
+         
+
         // Display course summary.
         if ($course->has_summary()) {
+            $estimated =get_estimate_time($course->id);
             $content .= html_writer::start_tag('p', array('class' => 'card-text'));
             $content .= $chelper->get_course_formatted_summary($course,
                 array('overflowdiv' => true, 'noclean' => true, 'para' => false));
+
             $content .= html_writer::end_tag('p'); // End summary.
         }
+         
 
+                
         $content .= html_writer::end_tag('div');
 
         $content .= html_writer::start_tag('div', array('class' => 'card-footer'));

@@ -411,7 +411,7 @@ class core_renderer extends \theme_boost\output\core_renderer {
             $userportfolio = new stdClass();
             $userportfolio->itemtype = 'text';
             $userportfolio->title = 'Portfolio';
-            $userportfolio->url = new moodle_url('https://miss.moe/my-profile', array());
+            $userportfolio->url = new moodle_url('https://miss.moe/missmoesandbox/my-profile', array());
             $userportfolio->pix = 'i/user';
 
             //array_unshift($opts->navitems, $userinfo);

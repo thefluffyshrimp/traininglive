@@ -3,11 +3,11 @@
 }*/
 
 .pagelayout-admin .page-header-headings h1{
-  display: none;
+	display: none;
 }
 
 .pagelayout-frontpage .page-header-headings h1{
-  display: none;
+	display: none;
 }
 
 .mobilefooter.mb-2 {
@@ -15,7 +15,7 @@
 }
 
 .tool_dataprivacy{
-  display: none;
+	display: none;
 }
 
 .box.py-3.generalbox.adminerror {
@@ -36,7 +36,7 @@
 }
 
 .coursesearchbox button.btn.btn-secondary{
-  color: #fff;
+	color: #fff;
     background-color: #1abc9c;
     border-color: #1abc9c;
 }
@@ -483,4 +483,15 @@ li.contentnode.ICQ.number {
 }
 #page-login-index .container-fluid{
     padding: 0rem 2rem 0 2rem!important;
+}
+.instanctime{
+  margin-left: 5px !important;
+}
+.estimate-time{
+    width: 30% !important;
+    color: #ffffff !important;
+    background: #736e6e !important;
+    /* padding: 3px; */
+    text-align: center !important;
+    font-size: 13px !important;
 }

@@ -91,6 +91,7 @@ class core_course_renderer extends plugin_renderer_base {
         return $content;
     }
 
+    
     /**
      * Renderers a structured array of courses and categories into a nice XHTML tree structure.
      *
@@ -622,6 +623,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @return string
      */
     public function course_section_cm_name_title(cm_info $mod, $displayoptions = array()) {
+        global $DB;
         $output = '';
         $url = $mod->url;
         if (!$mod->is_visible_on_course_page() || !$url) {
@@ -632,6 +634,8 @@ class core_course_renderer extends plugin_renderer_base {
         //Accessibility: for files get description via icon, this is very ugly hack!
         $instancename = $mod->get_formatted_name();
         $altname = $mod->modfullname;
+        $time = $DB->get_record($mod->modname, array('id' => $mod->instance));
+    
         // Avoid unnecessary duplication: if e.g. a forum name already
         // includes the word forum (or Forum, etc) then it is unhelpful
         // to include that in the accessible description that is added.
@@ -649,17 +653,22 @@ class core_course_renderer extends plugin_renderer_base {
         // Get on-click attribute value if specified and decode the onclick - it
         // has already been encoded for display (puke).
         $onclick = htmlspecialchars_decode($mod->onclick, ENT_QUOTES);
-
         // Display link itself.
         $activitylink = html_writer::empty_tag('img', array('src' => $mod->get_icon_url(),
                 'class' => 'iconlarge activityicon', 'alt' => '', 'role' => 'presentation', 'aria-hidden' => 'true')) .
                 html_writer::tag('span', $instancename . $altname, array('class' => 'instancename'));
         if ($mod->uservisible) {
             $output .= html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick));
+            if($time->estimate_time){
+                $time = gmdate("H:i", $time->estimate_time);
+                $output .= html_writer::tag('span', $time , array('class' => 'instanctime'));
+           }
+
         } else {
             // We may be displaying this just in order to show information
             // about visibility, without the actual link ($mod->is_visible_on_course_page()).
             $output .= html_writer::tag('div', $activitylink, array('class' => $textclasses));
+
         }
         return $output;
     }
@@ -2350,6 +2359,8 @@ class core_course_renderer extends plugin_renderer_base {
 
         return $output;
     }
+
+
 }
 
 /**
@@ -2664,4 +2675,10 @@ class coursecat_helper {
         }
         return $name;
     }
+
+    
+  
 }
+    
+
+     

@@ -47,9 +47,11 @@ if (isloggedin()) {
     if ($draweropenright && $hasblocks) {
         $extraclasses[] = 'drawer-open-right';
     }
-    $context = get_context_instance(CONTEXT_SYSTEM, SITEID);
-    $capability=has_capability('moodle/course:create',$context);
+
     $bodyattributes = $OUTPUT->body_attributes($extraclasses);
+    $context = get_context_instance(CONTEXT_SYSTEM, SITEID);
+    
+    $capability=has_capability('moodle/course:create',$context);
     $regionmainsettingsmenu = $OUTPUT->region_main_settings_menu();
     $templatecontext = [
         'sitename' => format_string($SITE->shortname, true, ['context' => context_course::instance(SITEID), "escape" => false]),
@@ -127,7 +129,9 @@ if (isloggedin()) {
         'numbersfrontpage' => $numbersfrontpage,
         'sponsorsfrontpage' => $sponsorsfrontpage,
         'clientsfrontpage' => $clientsfrontpage,
-        'logintoken' => \core\session\manager::get_login_token()
+        'logintoken' => \core\session\manager::get_login_token(),
+        'addcourseurl' => new moodle_url('/course/edit.php')
+        
     ];
 
     $templatecontext = array_merge($templatecontext, $themesettings->footer_items(), $themesettings->marketing_items());

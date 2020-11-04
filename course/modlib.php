@@ -64,6 +64,8 @@ function add_moduleinfo($moduleinfo, $course, $mform = null) {
     $newcm->visible          = $moduleinfo->visible;
     $newcm->visibleold       = $moduleinfo->visible;
     $newcm->visibleoncoursepage = $moduleinfo->visibleoncoursepage;
+    $newcm->estimate_time       = $moduleinfo->estimate_time;
+
     if (isset($moduleinfo->cmidnumber)) {
         $newcm->idnumber         = $moduleinfo->cmidnumber;
     }

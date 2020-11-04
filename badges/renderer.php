@@ -26,6 +26,8 @@
 
 require_once($CFG->libdir . '/badgeslib.php');
 require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->dirroot.'/course/lib.php');
+
 
 /**
  * Standard HTML output renderer for badges
@@ -389,6 +391,7 @@ class core_badges_renderer extends plugin_renderer_base {
         $output .= $this->output->heading(get_string('badgedetails', 'badges'), 3);
         $dl = array();
         $dl[get_string('name')] = $badge->name;
+        $dl['Time Estimation'] = get_estimate_time($badge->courseid);
         if (!empty($badge->version)) {
             $dl[get_string('version', 'badges')] = $badge->version;
         }
@@ -703,7 +706,7 @@ class core_badges_renderer extends plugin_renderer_base {
         foreach ($badges->badges as $badge) {
             $badgeimage = print_badge_image($badge, $this->page->context, 'large');
             $name = $badge->name;
-            $description = $badge->description;
+            $description = $badge->description.'<br><h6>'.'Time Estimation: '.get_estimate_time($badge->courseid).'</h6>';
             $criteria = self::print_badge_criteria($badge);
             if ($badge->dateissued) {
                 $icon = new pix_icon('i/valid',

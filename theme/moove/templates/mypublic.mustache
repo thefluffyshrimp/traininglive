@@ -135,6 +135,11 @@
                                                                     <a href="{{ link }}"><h5 class="mt-0">{{{ fullname }}}</h5></a>
                                                                     {{# startdate }}<small>{{#str}}startedon, theme_moove{{/str}}: {{#userdate}} {{startdate}}, %A, %d %B %Y {{/userdate}}</small>{{/ startdate }}
 
+
+                                                                    <div class="mt-1">
+                                                                    <small>{{#str}}estimatetime, theme_moove{{/str}} {{{get_estimate_time}}}</small>
+                                                                       </div>
+
                                                                     <div class="mt-1">
                                                                         {{{ summary }}}
                                                                     </div>

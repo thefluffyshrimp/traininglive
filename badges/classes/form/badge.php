@@ -65,6 +65,10 @@ class badge extends moodleform {
         $mform->addElement('select', 'language', get_string('language'), $languages);
         $mform->addHelpButton('language', 'language', 'badges');
 
+        $mform->addElement('text', 'skills', 'Skills');
+        $mform->setType('skills', PARAM_TEXT);
+        $mform->addHelpButton('skills', 'skills', 'badges');
+
         $mform->addElement('textarea', 'description', get_string('description', 'badges'), 'wrap="virtual" rows="8" cols="70"');
         $mform->setType('description', PARAM_NOTAGS);
         $mform->addRule('description', null, 'required');

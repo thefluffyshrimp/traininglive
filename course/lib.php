@@ -3065,6 +3065,7 @@ class course_request {
         $data->groupmode          = $courseconfig->groupmode;
         $data->groupmodeforce     = $courseconfig->groupmodeforce;
         $data->visible            = $courseconfig->visible;
+        $data->created_by         = $courseconfig->created_by;
         $data->visibleold         = $data->visible;
         $data->lang               = $courseconfig->lang;
         $data->enablecompletion   = $courseconfig->enablecompletion;
@@ -4999,4 +5000,18 @@ function course_get_course_dates_for_user_ids(stdClass $course, array $userids):
  */
 function course_get_course_dates_for_user_id(stdClass $course, int $userid): array {
     return (course_get_course_dates_for_user_ids($course, [$userid]))[$userid];
+}
+ function get_estimate_time($courseid) {
+        global $CFG ,$DB;
+        $mods = get_course_mods($courseid);
+        foreach($mods as $cm) {
+             $modrec = $DB->get_record($cm->modname, array('id' => $cm->instance));
+             $time += $modrec->estimate_time; 
+             if($time > 0){
+             $totaltime = gmdate("H:i", $time);
+             }
+         
+        }
+        return $totaltime;
+        
 }

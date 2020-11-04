@@ -77,6 +77,7 @@ if ($form->is_cancelled()) {
     $fordb->name = $data->name;
     $fordb->version = $data->version;
     $fordb->language = $data->language;
+     $fordb->skills = $data->skills;
     $fordb->description = $data->description;
     $fordb->imageauthorname = $data->imageauthorname;
     $fordb->imageauthoremail = $data->imageauthoremail;
