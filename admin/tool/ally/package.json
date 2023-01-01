@@ -11,7 +11,7 @@
     "grunt-exec": "~3.0.0",
     "grunt-load-gruntfile": "^0.0.2",
     "grunt-sass": "^3.0.2",
-    "@vue/cli-service": "^3.0.0-rc.10"
+    "@vue/cli-service": "^5.0.8"
   },
   "dependencies": {
     "node": "^12.4.0",
